@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_section action="DELETE" caption="New section 1" section_id="0abe8433c398131076cbbecdd401316a" sys_domain="global" table="x_2162040_documate_templates" version="3" view="">
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>condition</element>
+            <position>0</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-08 12:20:41</sys_created_on>
+            <sys_id>d2be8433c398131076cbbecdd40131a3</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="New section 1" display_value="New section 1" name="x_2162040_documate_templates" sys_domain="global" view="Default view">0abe8433c398131076cbbecdd401316a</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-08 12:20:41</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>run_type</element>
+            <position>1</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-08 12:20:41</sys_created_on>
+            <sys_id>9ebe8433c398131076cbbecdd40131a3</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="New section 1" display_value="New section 1" name="x_2162040_documate_templates" sys_domain="global" view="Default view">0abe8433c398131076cbbecdd401316a</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-08 12:20:41</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>time</element>
+            <position>2</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-08 12:20:41</sys_created_on>
+            <sys_id>5abe8433c398131076cbbecdd40131a4</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="New section 1" display_value="New section 1" name="x_2162040_documate_templates" sys_domain="global" view="Default view">0abe8433c398131076cbbecdd401316a</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-08 12:20:41</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_section action="DELETE">
+            <caption>New section 1</caption>
+            <header>false</header>
+            <name>x_2162040_documate_templates</name>
+            <roles/>
+            <sys_class_name>sys_ui_section</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-08 12:20:40</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>0abe8433c398131076cbbecdd401316a</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_2162040_documate_templates</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+            <sys_update_name>sys_ui_section_0abe8433c398131076cbbecdd401316a</sys_update_name>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-08 12:20:40</sys_updated_on>
+            <sys_user/>
+            <title>false</title>
+            <view display_value="Default view" name="NULL">Default view</view>
+            <view_name/>
+        </sys_ui_section>
+    </sys_ui_section>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="DocuMate">0b329140c358971076cbbecdd4013131</application>
+        <file_path/>
+        <instance_id>96dc3993db6a0ed437d72a5913961963</instance_id>
+        <instance_name>dev274216</instance_name>
+        <merge_base/>
+        <name>sys_ui_section_0abe8433c398131076cbbecdd401316a</name>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update><sys_ui_section caption="New section 1" section_id="0abe8433c398131076cbbecdd401316a" sys_domain="global" table="x_2162040_documate_templates" version="3" view=""><sys_ui_element action="INSERT_OR_UPDATE"><element>condition</element><position>0</position><sys_created_by>admin</sys_created_by><sys_created_on>2026-11-08 12:20:41</sys_created_on><sys_id>d2be8433c398131076cbbecdd40131a3</sys_id><sys_mod_count>0</sys_mod_count><sys_ui_formatter/><sys_ui_section caption="New section 1" display_value="New section 1" name="x_2162040_documate_templates" sys_domain="global" view="Default view">0abe8433c398131076cbbecdd401316a</sys_ui_section><sys_updated_by>admin</sys_updated_by><sys_updated_on>2026-11-08 12:20:41</sys_updated_on><sys_user/><type/></sys_ui_element><sys_ui_element action="INSERT_OR_UPDATE"><element>run_type</element><position>1</position><sys_created_by>admin</sys_created_by><sys_created_on>2026-11-08 12:20:41</sys_created_on><sys_id>9ebe8433c398131076cbbecdd40131a3</sys_id><sys_mod_count>0</sys_mod_count><sys_ui_formatter/><sys_ui_section caption="New section 1" display_value="New section 1" name="x_2162040_documate_templates" sys_domain="global" view="Default view">0abe8433c398131076cbbecdd401316a</sys_ui_section><sys_updated_by>admin</sys_updated_by><sys_updated_on>2026-11-08 12:20:41</sys_updated_on><sys_user/><type/></sys_ui_element><sys_ui_element action="INSERT_OR_UPDATE"><element>time</element><position>2</position><sys_created_by>admin</sys_created_by><sys_created_on>2026-11-08 12:20:41</sys_created_on><sys_id>5abe8433c398131076cbbecdd40131a4</sys_id><sys_mod_count>0</sys_mod_count><sys_ui_formatter/><sys_ui_section caption="New section 1" display_value="New section 1" name="x_2162040_documate_templates" sys_domain="global" view="Default view">0abe8433c398131076cbbecdd401316a</sys_ui_section><sys_updated_by>admin</sys_updated_by><sys_updated_on>2026-11-08 12:20:41</sys_updated_on><sys_user/><type/></sys_ui_element><sys_ui_section action="INSERT_OR_UPDATE"><caption>New section 1</caption><header>false</header><name>x_2162040_documate_templates</name><roles/><sys_class_name>sys_ui_section</sys_class_name><sys_created_by>admin</sys_created_by><sys_created_on>2026-11-08 12:20:40</sys_created_on><sys_domain>global</sys_domain><sys_domain_path>/</sys_domain_path><sys_id>0abe8433c398131076cbbecdd401316a</sys_id><sys_mod_count>0</sys_mod_count><sys_name>x_2162040_documate_templates</sys_name><sys_overrides/><sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package><sys_policy/><sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope><sys_update_name>sys_ui_section_0abe8433c398131076cbbecdd401316a</sys_update_name><sys_updated_by>admin</sys_updated_by><sys_updated_on>2026-11-08 12:20:40</sys_updated_on><sys_user/><title>false</title><view display_value="Default view" name="NULL">Default view</view><view_name/></sys_ui_section></sys_ui_section></record_update>]]></payload>
+        <payload_hash>1979407042</payload_hash>
+        <record_name>Templates</record_name>
+        <reverted_from/>
+        <source>8b329140c358971076cbbecdd401313a</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-11-08 12:20:41</sys_created_on>
+        <sys_id>1abe8433c398131076cbbecdd40131b4</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>1a1bb1a89fd0000001</sys_recorded_at>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-11-08 12:20:41</sys_updated_on>
+        <type>Form Layout</type>
+        <update_guid>dabe843389981310a567a9cfb7948fb3</update_guid>
+        <update_guid_history>dabe843389981310a567a9cfb7948fb3:1979407042</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete/>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-11-08 12:26:14</sys_created_on>
+        <sys_db_object display_value="" name="sys_ui_section">sys_ui_section</sys_db_object>
+        <sys_id>7638810bdfaf4959bf38c3cadc1edbd1</sys_id>
+        <sys_metadata>0abe8433c398131076cbbecdd401316a</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>New section 1</sys_name>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_parent display_value="Templates">e6a31904c358971076cbbecdd40131c2</sys_parent>
+        <sys_policy/>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_scope_delete display_value="">96fe46ba94b143098b88bf6af5790989</sys_scope_delete>
+        <sys_update_name>sys_ui_section_0abe8433c398131076cbbecdd401316a</sys_update_name>
+        <sys_update_version display_value="sys_ui_section_0abe8433c398131076cbbecdd401316a">1abe8433c398131076cbbecdd40131b4</sys_update_version>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-11-08 12:26:14</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

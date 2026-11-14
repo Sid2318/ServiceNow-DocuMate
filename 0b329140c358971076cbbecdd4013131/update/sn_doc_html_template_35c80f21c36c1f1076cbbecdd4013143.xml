@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sn_doc_html_template">
+    <sn_doc_html_template action="INSERT_OR_UPDATE">
+        <acknowledgement_text/>
+        <active>true</active>
+        <category/>
+        <custom_font/>
+        <end_date/>
+        <footer_image/>
+        <footer_image_height>50</footer_image_height>
+        <footer_image_position>CENTER</footer_image_position>
+        <footnote/>
+        <footnote_position>RIGHT</footnote_position>
+        <footnote_vertical_position>BELOW</footnote_vertical_position>
+        <header_image/>
+        <header_image_height>50</header_image_height>
+        <header_image_position>CENTER</header_image_position>
+        <html_script_body><![CDATA[<p>New Actual start: ${work_start} Approval history: ${approval_history}</p>]]></html_script_body>
+        <language>en</language>
+        <left_right_margin>36</left_right_margin>
+        <name>test</name>
+        <owner/>
+        <page_number_config/>
+        <page_size>LETTER</page_size>
+        <sanitize>true</sanitize>
+        <set_signing_order>true</set_signing_order>
+        <signing_type>servicenow_sign</signing_type>
+        <source_template/>
+        <start_date/>
+        <state>draft</state>
+        <storage_destination>attachment</storage_destination>
+        <sys_class_name>sn_doc_html_template</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-11-14 12:24:13</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_id>35c80f21c36c1f1076cbbecdd4013143</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>test</sys_name>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_update_name>sn_doc_html_template_35c80f21c36c1f1076cbbecdd4013143</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-11-14 12:24:13</sys_updated_on>
+        <table>incident</table>
+        <template_date_format/>
+        <toc_config/>
+        <top_bottom_margin>72</top_bottom_margin>
+        <user_criteria/>
+    </sn_doc_html_template>
+    <sys_translated_text action="delete_multiple" query="documentkey=35c80f21c36c1f1076cbbecdd4013143"/>
+</record_update>

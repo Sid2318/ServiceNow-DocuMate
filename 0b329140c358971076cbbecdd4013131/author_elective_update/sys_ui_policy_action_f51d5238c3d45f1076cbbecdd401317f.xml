@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ui_policy_action">
+    <sys_ui_policy_action action="DELETE">
+        <cleared>false</cleared>
+        <disabled>ignore</disabled>
+        <field>html_template</field>
+        <field_message/>
+        <field_message_type>none</field_message_type>
+        <mandatory>true</mandatory>
+        <sys_class_name>sys_ui_policy_action</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-10-30 15:01:05</sys_created_on>
+        <sys_id>f51d5238c3d45f1076cbbecdd401317f</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>html_template</sys_name>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_update_name>sys_ui_policy_action_f51d5238c3d45f1076cbbecdd401317f</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-10-30 15:01:05</sys_updated_on>
+        <table>x_2162040_documate_templates</table>
+        <ui_policy display_value="Visibilty of All Fields on Form">7cac9eb4c3d45f1076cbbecdd40131f3</ui_policy>
+        <value/>
+        <value_action>ignore</value_action>
+        <visible>ignore</visible>
+    </sys_ui_policy_action>
+    <sys_translated_text action="DELETE" query="documentkey=f51d5238c3d45f1076cbbecdd401317f"/>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="DocuMate">0b329140c358971076cbbecdd4013131</application>
+        <file_path/>
+        <instance_id>96dc3993db6a0ed437d72a5913961963</instance_id>
+        <instance_name>dev274216</instance_name>
+        <merge_base/>
+        <name>sys_ui_policy_action_f51d5238c3d45f1076cbbecdd401317f</name>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ui_policy_action"><sys_ui_policy_action action="INSERT_OR_UPDATE"><cleared>false</cleared><disabled>ignore</disabled><field>html_template</field><field_message/><field_message_type>none</field_message_type><mandatory>true</mandatory><sys_class_name>sys_ui_policy_action</sys_class_name><sys_created_by>admin</sys_created_by><sys_created_on>2026-10-30 15:01:05</sys_created_on><sys_id>f51d5238c3d45f1076cbbecdd401317f</sys_id><sys_mod_count>0</sys_mod_count><sys_name>html_template</sys_name><sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package><sys_policy/><sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope><sys_update_name>sys_ui_policy_action_f51d5238c3d45f1076cbbecdd401317f</sys_update_name><sys_updated_by>admin</sys_updated_by><sys_updated_on>2026-10-30 15:01:05</sys_updated_on><table>x_2162040_documate_templates</table><ui_policy display_value="Visibilty of All Fields on Form">7cac9eb4c3d45f1076cbbecdd40131f3</ui_policy><value/><value_action>ignore</value_action><visible>ignore</visible></sys_ui_policy_action><sys_translated_text action="delete_multiple" query="documentkey=f51d5238c3d45f1076cbbecdd401317f"/></record_update>]]></payload>
+        <payload_hash>-144300095</payload_hash>
+        <record_name>html_template</record_name>
+        <reverted_from/>
+        <source>8b329140c358971076cbbecdd401313a</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-10-30 15:01:05</sys_created_on>
+        <sys_id>8c2d9238c3d45f1076cbbecdd40131ea</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>1a18d5427f30000001</sys_recorded_at>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-10-30 15:01:05</sys_updated_on>
+        <type>UI Policy Action</type>
+        <update_guid>0c2d923893d45f1085bd0ba659b614e9</update_guid>
+        <update_guid_history>0c2d923893d45f1085bd0ba659b614e9:-144300095</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete/>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-10-30 15:01:48</sys_created_on>
+        <sys_db_object display_value="" name="sys_ui_policy_action">sys_ui_policy_action</sys_db_object>
+        <sys_id>b81b3c6bdff549e88b1f647a7ed26ce9</sys_id>
+        <sys_metadata>f51d5238c3d45f1076cbbecdd401317f</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>html_template</sys_name>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_scope_delete display_value="">96fe46ba94b143098b88bf6af5790989</sys_scope_delete>
+        <sys_update_name>sys_ui_policy_action_f51d5238c3d45f1076cbbecdd401317f</sys_update_name>
+        <sys_update_version display_value="sys_ui_policy_action_f51d5238c3d45f1076cbbecdd401317f">8c2d9238c3d45f1076cbbecdd40131ea</sys_update_version>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-10-30 15:01:48</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

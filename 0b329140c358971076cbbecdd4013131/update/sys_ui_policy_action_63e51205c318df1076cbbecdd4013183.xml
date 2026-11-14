@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ui_policy_action">
+    <sys_ui_policy_action action="INSERT_OR_UPDATE">
+        <cleared>false</cleared>
+        <disabled>ignore</disabled>
+        <field>field</field>
+        <field_message/>
+        <field_message_type>none</field_message_type>
+        <mandatory>false</mandatory>
+        <sys_class_name>sys_ui_policy_action</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-10-31 09:08:14</sys_created_on>
+        <sys_id>63e51205c318df1076cbbecdd4013183</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>field</sys_name>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_update_name>sys_ui_policy_action_63e51205c318df1076cbbecdd4013183</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-10-31 09:09:50</sys_updated_on>
+        <table>x_2162040_documate_field_mapping</table>
+        <ui_policy display_value="Hide the Script field Until Evaluate is True">c3269e04c390d71076cbbecdd40131fa</ui_policy>
+        <value/>
+        <value_action>ignore</value_action>
+        <visible>false</visible>
+    </sys_ui_policy_action>
+    <sys_translated_text action="delete_multiple" query="documentkey=63e51205c318df1076cbbecdd4013183"/>
+</record_update>

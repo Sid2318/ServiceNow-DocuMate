@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_section caption="When to run" section_id="33995e0cc390d71076cbbecdd40131a2" sys_domain="global" table="x_2162040_documate_templates" version="3" view="">
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>when_to_run</element>
+            <position>0</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-09 08:44:06</sys_created_on>
+            <sys_id>23b628c4c3ac931076cbbecdd4013148</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="When to run" display_value="When to run" name="x_2162040_documate_templates" sys_domain="global" view="Default view">33995e0cc390d71076cbbecdd40131a2</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-09 08:44:06</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.split</element>
+            <position>1</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-09 08:44:06</sys_created_on>
+            <sys_id>27b628c4c3ac931076cbbecdd4013149</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="When to run" display_value="When to run" name="x_2162040_documate_templates" sys_domain="global" view="Default view">33995e0cc390d71076cbbecdd40131a2</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-09 08:44:06</sys_updated_on>
+            <sys_user/>
+            <type>.split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>business_rule</element>
+            <position>2</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-09 08:44:06</sys_created_on>
+            <sys_id>efb628c4c3ac931076cbbecdd4013149</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="When to run" display_value="When to run" name="x_2162040_documate_templates" sys_domain="global" view="Default view">33995e0cc390d71076cbbecdd40131a2</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-09 08:44:06</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>scheduled_job</element>
+            <position>3</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-09 08:44:06</sys_created_on>
+            <sys_id>abb628c4c3ac931076cbbecdd401314a</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="When to run" display_value="When to run" name="x_2162040_documate_templates" sys_domain="global" view="Default view">33995e0cc390d71076cbbecdd40131a2</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-09 08:44:06</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>evaluate_condition_using_script</element>
+            <position>4</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-09 08:44:06</sys_created_on>
+            <sys_id>67b628c4c3ac931076cbbecdd401314b</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="When to run" display_value="When to run" name="x_2162040_documate_templates" sys_domain="global" view="Default view">33995e0cc390d71076cbbecdd40131a2</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-09 08:44:06</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>.end_split</element>
+            <position>5</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-09 08:44:06</sys_created_on>
+            <sys_id>23b628c4c3ac931076cbbecdd401314c</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="When to run" display_value="When to run" name="x_2162040_documate_templates" sys_domain="global" view="Default view">33995e0cc390d71076cbbecdd40131a2</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-09 08:44:06</sys_updated_on>
+            <sys_user/>
+            <type>.end_split</type>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>condition</element>
+            <position>6</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-09 08:44:06</sys_created_on>
+            <sys_id>ebb628c4c3ac931076cbbecdd401314c</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="When to run" display_value="When to run" name="x_2162040_documate_templates" sys_domain="global" view="Default view">33995e0cc390d71076cbbecdd40131a2</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-09 08:44:06</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>script_for_condition</element>
+            <position>7</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-09 08:44:06</sys_created_on>
+            <sys_id>a7b628c4c3ac931076cbbecdd401314d</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="When to run" display_value="When to run" name="x_2162040_documate_templates" sys_domain="global" view="Default view">33995e0cc390d71076cbbecdd40131a2</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-09 08:44:06</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>run_type</element>
+            <position>8</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-09 08:44:06</sys_created_on>
+            <sys_id>63b628c4c3ac931076cbbecdd401314e</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="When to run" display_value="When to run" name="x_2162040_documate_templates" sys_domain="global" view="Default view">33995e0cc390d71076cbbecdd40131a2</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-09 08:44:06</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_element action="INSERT_OR_UPDATE">
+            <element>time</element>
+            <position>9</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-09 08:44:06</sys_created_on>
+            <sys_id>2fb628c4c3ac931076cbbecdd401314e</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_ui_formatter/>
+            <sys_ui_section caption="When to run" display_value="When to run" name="x_2162040_documate_templates" sys_domain="global" view="Default view">33995e0cc390d71076cbbecdd40131a2</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-09 08:44:06</sys_updated_on>
+            <sys_user/>
+            <type/>
+        </sys_ui_element>
+        <sys_ui_section action="INSERT_OR_UPDATE">
+            <caption>When to run</caption>
+            <header>false</header>
+            <name>x_2162040_documate_templates</name>
+            <roles/>
+            <sys_class_name>sys_ui_section</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-10-28 06:50:20</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>33995e0cc390d71076cbbecdd40131a2</sys_id>
+            <sys_mod_count>1</sys_mod_count>
+            <sys_name>x_2162040_documate_templates</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+            <sys_update_name>sys_ui_section_33995e0cc390d71076cbbecdd40131a2</sys_update_name>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-08 11:17:13</sys_updated_on>
+            <sys_user/>
+            <title>false</title>
+            <view display_value="Default view" name="NULL">Default view</view>
+            <view_name/>
+        </sys_ui_section>
+    </sys_ui_section>
+</record_update>

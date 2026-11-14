@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_ui_module">
+    <sys_ui_module action="DELETE">
+        <active>true</active>
+        <application display_value="DocuMate">87106180c3d8971076cbbecdd40131ec</application>
+        <filter/>
+        <name>templas</name>
+        <order/>
+        <path/>
+        <path_relative_to_root>false</path_relative_to_root>
+        <roles>x_2162040_documate.field_mapping_user</roles>
+        <sys_class_name>sys_ui_module</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-10-28 02:39:04</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>43106180c3d8971076cbbecdd40131f2</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>templas</sys_name>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_update_name>sys_ui_module_43106180c3d8971076cbbecdd40131f2</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-10-28 02:39:04</sys_updated_on>
+        <table>x_2162040_documate_templa</table>
+        <uncancelable>false</uncancelable>
+        <view_name/>
+    </sys_ui_module>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="DocuMate">0b329140c358971076cbbecdd4013131</application>
+        <file_path/>
+        <instance_id>96dc3993db6a0ed437d72a5913961963</instance_id>
+        <instance_name>dev274216</instance_name>
+        <merge_base/>
+        <name>sys_ui_module_43106180c3d8971076cbbecdd40131f2</name>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_ui_module"><sys_ui_module action="INSERT_OR_UPDATE"><active>true</active><application display_value="DocuMate">87106180c3d8971076cbbecdd40131ec</application><filter/><name>templas</name><order/><path/><path_relative_to_root>false</path_relative_to_root><roles>x_2162040_documate.field_mapping_user</roles><sys_class_name>sys_ui_module</sys_class_name><sys_created_by>admin</sys_created_by><sys_created_on>2026-10-28 02:39:04</sys_created_on><sys_domain>global</sys_domain><sys_domain_path>/</sys_domain_path><sys_id>43106180c3d8971076cbbecdd40131f2</sys_id><sys_mod_count>0</sys_mod_count><sys_name>templas</sys_name><sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package><sys_policy/><sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope><sys_update_name>sys_ui_module_43106180c3d8971076cbbecdd40131f2</sys_update_name><sys_updated_by>admin</sys_updated_by><sys_updated_on>2026-10-28 02:39:04</sys_updated_on><table>x_2162040_documate_templa</table><uncancelable>false</uncancelable><view_name/></sys_ui_module></record_update>]]></payload>
+        <payload_hash>-1502963989</payload_hash>
+        <record_name>templas</record_name>
+        <reverted_from/>
+        <source>8b329140c358971076cbbecdd401313a</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-10-28 02:39:04</sys_created_on>
+        <sys_id>4b10a180c3d8971076cbbecdd4013110</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>1a180601a1d0000001</sys_recorded_at>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-10-28 02:39:04</sys_updated_on>
+        <type>Module</type>
+        <update_guid>c710a180e0d8971042e73fd50ee92a0f</update_guid>
+        <update_guid_history>c710a180e0d8971042e73fd50ee92a0f:-1502963989</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete/>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-10-28 05:40:44</sys_created_on>
+        <sys_db_object display_value="" name="sys_ui_module">sys_ui_module</sys_db_object>
+        <sys_id>8a47ab7a27a941429debdc6e46a951f9</sys_id>
+        <sys_metadata>43106180c3d8971076cbbecdd40131f2</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>templas</sys_name>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_scope_delete display_value="">96fe46ba94b143098b88bf6af5790989</sys_scope_delete>
+        <sys_update_name>sys_ui_module_43106180c3d8971076cbbecdd40131f2</sys_update_name>
+        <sys_update_version display_value="sys_ui_module_43106180c3d8971076cbbecdd40131f2">4b10a180c3d8971076cbbecdd4013110</sys_update_version>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-10-28 05:40:44</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

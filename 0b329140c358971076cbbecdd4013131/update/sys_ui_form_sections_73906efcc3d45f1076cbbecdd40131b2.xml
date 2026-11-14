@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_form_sections form_id="73906efcc3d45f1076cbbecdd40131b2" sys_domain="global" table="x_2162040_documate_sub_template" version="3">
+        <sys_ui_form_section action="INSERT_OR_UPDATE">
+            <position>0</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-07 15:54:39</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>fa16b39bc3dc9b1076cbbecdd401318e</sys_id>
+            <sys_mod_count>1</sys_mod_count>
+            <sys_overrides/>
+            <sys_ui_form display_value="x_2162040_documate_sub_template" name="x_2162040_documate_sub_template" sys_domain="global" view="Default view">73906efcc3d45f1076cbbecdd40131b2</sys_ui_form>
+            <sys_ui_section caption="Sub Template" display_value="Sub Template" name="x_2162040_documate_sub_template" sys_domain="global" view="Default view">e216b39bc3dc9b1076cbbecdd401316e</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-07 15:54:39</sys_updated_on>
+        </sys_ui_form_section>
+        <sys_ui_form_section action="INSERT_OR_UPDATE">
+            <position>1</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-10-30 15:16:21</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>b7906efcc3d45f1076cbbecdd40131b9</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_overrides/>
+            <sys_ui_form display_value="x_2162040_documate_sub_template" name="x_2162040_documate_sub_template" sys_domain="global" view="Default view">73906efcc3d45f1076cbbecdd40131b2</sys_ui_form>
+            <sys_ui_section caption="Content" display_value="Content" name="x_2162040_documate_sub_template" sys_domain="global" view="Default view">33906efcc3d45f1076cbbecdd40131af</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-10-30 15:16:21</sys_updated_on>
+        </sys_ui_form_section>
+        <sys_ui_form_section action="INSERT_OR_UPDATE">
+            <position>2</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-06 02:38:09</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>7d36f7fac31c971076cbbecdd40131fa</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_overrides/>
+            <sys_ui_form display_value="x_2162040_documate_sub_template" name="x_2162040_documate_sub_template" sys_domain="global" view="Default view">73906efcc3d45f1076cbbecdd40131b2</sys_ui_form>
+            <sys_ui_section caption="What to Show" display_value="What to Show" name="x_2162040_documate_sub_template" sys_domain="global" view="Default view">e536f7fac31c971076cbbecdd40131bf</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-06 02:38:09</sys_updated_on>
+        </sys_ui_form_section>
+        <sys_ui_form action="INSERT_OR_UPDATE">
+            <name>x_2162040_documate_sub_template</name>
+            <roles/>
+            <sys_class_name>sys_ui_form</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-10-30 15:16:21</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>73906efcc3d45f1076cbbecdd40131b2</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_2162040_documate_sub_template</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+            <sys_update_name>sys_ui_form_sections_73906efcc3d45f1076cbbecdd40131b2</sys_update_name>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-10-30 15:16:21</sys_updated_on>
+            <sys_user/>
+            <view display_value="Default view" name="NULL">Default view</view>
+            <view_name/>
+        </sys_ui_form>
+    </sys_ui_form_sections>
+</record_update>

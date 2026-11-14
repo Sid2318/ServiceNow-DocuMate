@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="DELETE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_2162040_documate.AutomationRunner</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>AutomationRunner</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var AutomationRunner = Class.create();
+AutomationRunner.prototype = {
+    initialize: function() {},
+
+    /*
+     * Called by generated Business Rule.
+     */
+    runForRecordChange: function(templateSysId, record) {
+        var template = new GlideRecord('x_2162040_documate_templates');
+
+        if (!template.get(templateSysId)) {
+            return;
+        }
+
+        if (template.getValue('state') != 'published') {
+            return;
+        }
+
+        var engine = new x_2162040_documate.CoreEngine();
+
+        if (!engine.evaluateCondition(template, record)) {
+            new x_2162040_documate.instanceUtils().createSkipped(
+                template,
+                record,
+                'Template condition did not match.'
+            );
+            return;
+        }
+
+        engine.generateDocument(template, record);
+    },
+
+    /*
+     * Called by generated Scheduled Job.
+     *
+     * First simple version:
+     * - loads template
+     * - queries template.table
+     * - applies schedule_condition if field exists and has value
+     * - generates document for matching records
+     */
+    runScheduled: function(templateSysId) {
+        var template = new GlideRecord('x_2162040_documate_templates');
+
+        if (!template.get(templateSysId)) {
+            return;
+        }
+
+        if (template.getValue('state') != 'published') {
+            return;
+        }
+
+        var tableName = template.getValue('table');
+
+        if (!tableName) {
+            return;
+        }
+
+        var gr = new GlideRecord(tableName);
+
+        if (!gr.isValid()) {
+            return;
+        }
+
+        if (template.isValidField('schedule_condition')) {
+            var scheduleCondition = template.getValue('schedule_condition');
+
+            if (scheduleCondition) {
+                gr.addEncodedQuery(scheduleCondition);
+            }
+        }
+
+        gr.query();
+
+        var engine = new x_2162040_documate.CoreEngine();
+
+        while (gr.next()) {
+            if (engine.evaluateCondition(template, gr)) {
+                engine.generateDocument(template, gr);
+            } else {
+                new x_2162040_documate.instanceUtils().createSkipped(
+                    template,
+                    gr,
+                    'Template condition did not match.'
+                );
+            }
+        }
+    },
+
+    type: 'AutomationRunner'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-11-08 10:29:44</sys_created_on>
+        <sys_id>2d45736bc394131076cbbecdd4013161</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>AutomationRunner</sys_name>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_update_name>sys_script_include_2d45736bc394131076cbbecdd4013161</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-11-08 10:29:44</sys_updated_on>
+    </sys_script_include>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="DocuMate">0b329140c358971076cbbecdd4013131</application>
+        <file_path/>
+        <instance_id>96dc3993db6a0ed437d72a5913961963</instance_id>
+        <instance_name>dev274216</instance_name>
+        <merge_base/>
+        <name>sys_script_include_2d45736bc394131076cbbecdd4013161</name>
+        <payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sys_script_include"&gt;&lt;sys_script_include action="INSERT_OR_UPDATE"&gt;&lt;access&gt;package_private&lt;/access&gt;&lt;active&gt;true&lt;/active&gt;&lt;api_name&gt;x_2162040_documate.AutomationRunner&lt;/api_name&gt;&lt;caller_access/&gt;&lt;client_callable&gt;false&lt;/client_callable&gt;&lt;description/&gt;&lt;mobile_callable&gt;false&lt;/mobile_callable&gt;&lt;name&gt;AutomationRunner&lt;/name&gt;&lt;sandbox_callable&gt;false&lt;/sandbox_callable&gt;&lt;script&gt;&lt;![CDATA[var AutomationRunner = Class.create();
+AutomationRunner.prototype = {
+    initialize: function() {},
+
+    /*
+     * Called by generated Business Rule.
+     */
+    runForRecordChange: function(templateSysId, record) {
+        var template = new GlideRecord('x_2162040_documate_templates');
+
+        if (!template.get(templateSysId)) {
+            return;
+        }
+
+        if (template.getValue('state') != 'published') {
+            return;
+        }
+
+        var engine = new x_2162040_documate.CoreEngine();
+
+        if (!engine.evaluateCondition(template, record)) {
+            new x_2162040_documate.instanceUtils().createSkipped(
+                template,
+                record,
+                'Template condition did not match.'
+            );
+            return;
+        }
+
+        engine.generateDocument(template, record);
+    },
+
+    /*
+     * Called by generated Scheduled Job.
+     *
+     * First simple version:
+     * - loads template
+     * - queries template.table
+     * - applies schedule_condition if field exists and has value
+     * - generates document for matching records
+     */
+    runScheduled: function(templateSysId) {
+        var template = new GlideRecord('x_2162040_documate_templates');
+
+        if (!template.get(templateSysId)) {
+            return;
+        }
+
+        if (template.getValue('state') != 'published') {
+            return;
+        }
+
+        var tableName = template.getValue('table');
+
+        if (!tableName) {
+            return;
+        }
+
+        var gr = new GlideRecord(tableName);
+
+        if (!gr.isValid()) {
+            return;
+        }
+
+        if (template.isValidField('schedule_condition')) {
+            var scheduleCondition = template.getValue('schedule_condition');
+
+            if (scheduleCondition) {
+                gr.addEncodedQuery(scheduleCondition);
+            }
+        }
+
+        gr.query();
+
+        var engine = new x_2162040_documate.CoreEngine();
+
+        while (gr.next()) {
+            if (engine.evaluateCondition(template, gr)) {
+                engine.generateDocument(template, gr);
+            } else {
+                new x_2162040_documate.instanceUtils().createSkipped(
+                    template,
+                    gr,
+                    'Template condition did not match.'
+                );
+            }
+        }
+    },
+
+    type: 'AutomationRunner'
+};]]&gt;&lt;/script&gt;&lt;sys_class_name&gt;sys_script_include&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2026-11-08 10:29:44&lt;/sys_created_on&gt;&lt;sys_id&gt;2d45736bc394131076cbbecdd4013161&lt;/sys_id&gt;&lt;sys_mod_count&gt;0&lt;/sys_mod_count&gt;&lt;sys_name&gt;AutomationRunner&lt;/sys_name&gt;&lt;sys_package display_value="DocuMate" source="x_2162040_documate"&gt;0b329140c358971076cbbecdd4013131&lt;/sys_package&gt;&lt;sys_policy&gt;read&lt;/sys_policy&gt;&lt;sys_scope display_value="DocuMate"&gt;0b329140c358971076cbbecdd4013131&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_script_include_2d45736bc394131076cbbecdd4013161&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2026-11-08 10:29:44&lt;/sys_updated_on&gt;&lt;/sys_script_include&gt;&lt;/record_update&gt;</payload>
+        <payload_hash>923026760</payload_hash>
+        <record_name>AutomationRunner</record_name>
+        <reverted_from/>
+        <source>8b329140c358971076cbbecdd401313a</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-11-08 10:29:44</sys_created_on>
+        <sys_id>c555376bc394131076cbbecdd40131e8</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>1a1bab4f88d0000001</sys_recorded_at>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-11-08 10:29:44</sys_updated_on>
+        <type>Script Include</type>
+        <update_guid>4555376ba8941310ba120b483ef7b3e7</update_guid>
+        <update_guid_history>4555376ba8941310ba120b483ef7b3e7:923026760</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete/>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-11-08 10:35:45</sys_created_on>
+        <sys_db_object display_value="" name="sys_script_include">sys_script_include</sys_db_object>
+        <sys_id>6bbd6b9923bd4ac8ae482f9369737664</sys_id>
+        <sys_metadata>2d45736bc394131076cbbecdd4013161</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>AutomationRunner</sys_name>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_parent/>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_scope_delete display_value="">96fe46ba94b143098b88bf6af5790989</sys_scope_delete>
+        <sys_update_name>sys_script_include_2d45736bc394131076cbbecdd4013161</sys_update_name>
+        <sys_update_version display_value="sys_script_include_2d45736bc394131076cbbecdd4013161">c555376bc394131076cbbecdd40131e8</sys_update_version>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-11-08 10:35:45</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>
