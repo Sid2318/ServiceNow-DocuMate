@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="DELETE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_2162040_documate.DocuMateFieldAjax</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>DocuMateFieldAjax</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var DocuMateFieldAjax = Class.create();
+DocuMateFieldAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+
+    getFieldsForTemplate: function() {
+        var templateSysId = this.getParameter('sysparm_template');
+
+        if (!templateSysId)
+            return '[]';
+
+        var template = new GlideRecord('x_2162040_documate_templates');
+
+        if (!template.get(templateSysId))
+            return '[]';
+
+        var tableName = template.getValue('source_table');
+
+        if (!tableName)
+            return '[]';
+
+        var sourceGr = new GlideRecord(tableName);
+
+        if (!sourceGr.isValid())
+            return '[]';
+
+        sourceGr.initialize();
+
+        var result = [];
+        var fields = sourceGr.getFields();
+
+        for (var i = 0; i < fields.size(); i++) {
+            var field = fields.get(i);
+
+            var fieldName = field.getName();
+            var fieldLabel = field.getLabel();
+
+            // Optional: hide system fields
+            // if (fieldName.indexOf('sys_') === 0)
+            //     continue;
+
+            result.push({
+                value: fieldName,
+                label: fieldLabel + ' [' + fieldName + ']'
+            });
+        }
+
+        result.sort(function(a, b) {
+            return a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1;
+        });
+
+        return JSON.stringify(result);
+    },
+
+    type: 'DocuMateFieldAjax'
+});]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-10-28 02:21:18</sys_created_on>
+        <sys_id>399bd9c4c398971076cbbecdd401311c</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>DocuMateFieldAjax</sys_name>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_update_name>sys_script_include_399bd9c4c398971076cbbecdd401311c</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-10-28 02:21:18</sys_updated_on>
+    </sys_script_include>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="DocuMate">0b329140c358971076cbbecdd4013131</application>
+        <file_path/>
+        <instance_id>96dc3993db6a0ed437d72a5913961963</instance_id>
+        <instance_name>dev274216</instance_name>
+        <merge_base/>
+        <name>sys_script_include_399bd9c4c398971076cbbecdd401311c</name>
+        <payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sys_script_include"&gt;&lt;sys_script_include action="INSERT_OR_UPDATE"&gt;&lt;access&gt;package_private&lt;/access&gt;&lt;active&gt;true&lt;/active&gt;&lt;api_name&gt;x_2162040_documate.DocuMateFieldAjax&lt;/api_name&gt;&lt;caller_access/&gt;&lt;client_callable&gt;true&lt;/client_callable&gt;&lt;description/&gt;&lt;mobile_callable&gt;false&lt;/mobile_callable&gt;&lt;name&gt;DocuMateFieldAjax&lt;/name&gt;&lt;sandbox_callable&gt;false&lt;/sandbox_callable&gt;&lt;script&gt;&lt;![CDATA[var DocuMateFieldAjax = Class.create();
+DocuMateFieldAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+
+    getFieldsForTemplate: function() {
+        var templateSysId = this.getParameter('sysparm_template');
+
+        if (!templateSysId)
+            return '[]';
+
+        var template = new GlideRecord('x_2162040_documate_templates');
+
+        if (!template.get(templateSysId))
+            return '[]';
+
+        var tableName = template.getValue('source_table');
+
+        if (!tableName)
+            return '[]';
+
+        var sourceGr = new GlideRecord(tableName);
+
+        if (!sourceGr.isValid())
+            return '[]';
+
+        sourceGr.initialize();
+
+        var result = [];
+        var fields = sourceGr.getFields();
+
+        for (var i = 0; i &lt; fields.size(); i++) {
+            var field = fields.get(i);
+
+            var fieldName = field.getName();
+            var fieldLabel = field.getLabel();
+
+            // Optional: hide system fields
+            // if (fieldName.indexOf('sys_') === 0)
+            //     continue;
+
+            result.push({
+                value: fieldName,
+                label: fieldLabel + ' [' + fieldName + ']'
+            });
+        }
+
+        result.sort(function(a, b) {
+            return a.label.toLowerCase() &gt; b.label.toLowerCase() ? 1 : -1;
+        });
+
+        return JSON.stringify(result);
+    },
+
+    type: 'DocuMateFieldAjax'
+});]]&gt;&lt;/script&gt;&lt;sys_class_name&gt;sys_script_include&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2026-10-28 02:21:18&lt;/sys_created_on&gt;&lt;sys_id&gt;399bd9c4c398971076cbbecdd401311c&lt;/sys_id&gt;&lt;sys_mod_count&gt;0&lt;/sys_mod_count&gt;&lt;sys_name&gt;DocuMateFieldAjax&lt;/sys_name&gt;&lt;sys_package display_value="DocuMate" source="x_2162040_documate"&gt;0b329140c358971076cbbecdd4013131&lt;/sys_package&gt;&lt;sys_policy&gt;read&lt;/sys_policy&gt;&lt;sys_scope display_value="DocuMate"&gt;0b329140c358971076cbbecdd4013131&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_script_include_399bd9c4c398971076cbbecdd401311c&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2026-10-28 02:21:18&lt;/sys_updated_on&gt;&lt;/sys_script_include&gt;&lt;/record_update&gt;</payload>
+        <payload_hash>320498446</payload_hash>
+        <record_name>DocuMateFieldAjax</record_name>
+        <reverted_from/>
+        <source>8b329140c358971076cbbecdd401313a</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-10-28 02:21:19</sys_created_on>
+        <sys_id>830c9908c398971076cbbecdd4013175</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>1a1804fd99c0000001</sys_recorded_at>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-10-28 02:21:19</sys_updated_on>
+        <type>Script Include</type>
+        <update_guid>430c9908c2989710003456d69386f574</update_guid>
+        <update_guid_history>430c9908c2989710003456d69386f574:320498446</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete/>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-10-28 02:32:50</sys_created_on>
+        <sys_db_object display_value="" name="sys_script_include">sys_script_include</sys_db_object>
+        <sys_id>88a9ac16c98c47ec933d6250816c2790</sys_id>
+        <sys_metadata>399bd9c4c398971076cbbecdd401311c</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>DocuMateFieldAjax</sys_name>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_parent/>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_scope_delete display_value="">96fe46ba94b143098b88bf6af5790989</sys_scope_delete>
+        <sys_update_name>sys_script_include_399bd9c4c398971076cbbecdd401311c</sys_update_name>
+        <sys_update_version display_value="sys_script_include_399bd9c4c398971076cbbecdd401311c">830c9908c398971076cbbecdd4013175</sys_update_version>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-10-28 02:32:50</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

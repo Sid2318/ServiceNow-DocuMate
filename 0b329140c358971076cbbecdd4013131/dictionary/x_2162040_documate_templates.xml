@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="e6a31904c358971076cbbecdd40131c2" label="Templates" max_length="40" name="x_2162040_documate_templates" type="collection">
+        <element choice="1" label="Run Type" max_length="40" name="run_type" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Weekly" value="weekly"/>
+                <element inactive_on_update="false" label="Daily" value="daily"/>
+                <element inactive_on_update="false" label="Monthly" value="monthly"/>
+            </choice>
+        </element>
+        <element label="Time" max_length="40" name="time" type="glide_time"/>
+        <element label="Dynamic Name" max_length="40" name="dynamic_name" type="boolean"/>
+        <element label="Scheduled Job" max_length="32" name="scheduled_job" read_only="true" read_only_option="instance_configured" reference="sysauto_script" type="reference"/>
+        <element label="Default File Name" max_length="200" name="default_file_name" type="string"/>
+        <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" read_only="true" read_only_option="instance_configured" type="string"/>
+        <element choice="3" default="draft" label="State" max_length="40" name="state" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Published" sequence="2" value="published"/>
+                <element inactive_on_update="false" label="Draft" sequence="0" value="draft"/>
+                <element inactive_on_update="false" label="Mapping" sequence="1" value="mapping"/>
+                <element inactive_on_update="false" label="Validated" sequence="3" value="validated"/>
+            </choice>
+        </element>
+        <element default="true" label="Active" max_length="40" name="active" type="boolean"/>
+        <element label="Evaluate condition using script" max_length="40" name="evaluate_condition_using_script" type="boolean"/>
+        <element default="// Set result to true when this template should generate a document.&#13;&#10;// Available variables:&#13;&#10;// current  = source record&#13;&#10;// template = DocuMate Template record&#13;&#10;// result   = true or false" label="Script for Condition" max_length="8000" name="script_for_condition" type="script"/>
+        <element default="// Set result to the generated file name without extension.&#13;&#10;// Available variables:&#13;&#10;// current = source record&#13;&#10;// result  = default file name&#13;&#10;// eg : result = current.getValue('number') + ' - Document';" label="Script for Naming" max_length="8000" name="script_for_naming" type="script"/>
+        <element label="HTML Template" mandatory="true" max_length="2000000" name="html_template" type="html"/>
+        <element label="Description" max_length="1000" name="description" type="string"/>
+        <element choice="1" label="When to run" mandatory="true" max_length="40" name="when_to_run" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Conditions Satify" sequence="0" value="br"/>
+                <element inactive_on_update="false" label="Scheduled Time" sequence="1" value="schedule"/>
+            </choice>
+        </element>
+        <element label="Business Rule" max_length="32" name="business_rule" read_only="true" read_only_option="instance_configured" reference="sys_script" type="reference"/>
+        <element dependent="table" dependent_on_field="table" label="Condition" max_length="4000" name="condition" type="conditions" use_dependent_field="true"/>
+        <element label="Name" mandatory="true" max_length="255" name="name" type="string"/>
+        <element label="Table" mandatory="true" max_length="80" name="table" type="table_name"/>
+        <index name="index">
+            <element name="business_rule"/>
+        </index>
+        <index name="index2">
+            <element name="scheduled_job"/>
+        </index>
+    </element>
+</database>

@@ -1,0 +1,724 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_2162040_documate.CoreEngine</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>CoreEngine</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var CoreEngine = Class.create();
+CoreEngine.prototype = {
+    initialize: function() {
+        this.instanceUtils = new x_2162040_documate.instanceUtils();
+    },
+
+    /*
+     * Called by generated Business Rule.
+     *
+     * Example generated script:
+     * new x_2162040_documate.CoreEngine().createDocument(templateSysId, current);
+     */
+    createDocument: function(templateSysId, record) {
+        var template = new GlideRecord('x_2162040_documate_templates');
+
+        if (!template.get(templateSysId)) {
+            return {
+                status: 'failed',
+                error: 'Template not found.'
+            };
+        }
+
+        if (template.getValue('state') != 'published') {
+            return {
+                status: 'skipped',
+                error: 'Template is not published.'
+            };
+        }
+
+        if (!record || !record.isValidRecord()) {
+            return {
+                status: 'failed',
+                error: 'Source record is invalid.'
+            };
+        }
+
+        if (!this.evaluateCondition(template, record)) {
+            this.instanceUtils.createSkipped(
+                template,
+                record,
+                'Template condition did not match.'
+            );
+
+            return {
+                status: 'skipped',
+                error: 'Template condition did not match.'
+            };
+        }
+
+        return this.generateDocument(template, record);
+    },
+
+    /*
+     * Called by generated Scheduled Job.
+     *
+     * Example generated script:
+     * new x_2162040_documate.CoreEngine().executeSchedule(templateSysId);
+     */
+    executeSchedule: function(templateSysId) {
+        var template = new GlideRecord('x_2162040_documate_templates');
+
+        if (!template.get(templateSysId)) {
+            return {
+                status: 'failed',
+                error: 'Template not found.'
+            };
+        }
+
+        if (template.getValue('state') != 'published') {
+            return {
+                status: 'skipped',
+                error: 'Template is not published.'
+            };
+        }
+
+        var tableName = template.getValue('table');
+
+        if (!tableName) {
+            return {
+                status: 'failed',
+                error: 'Template table is empty.'
+            };
+        }
+
+        var gr = new GlideRecord(tableName);
+
+        if (!gr.isValid()) {
+            return {
+                status: 'failed',
+                error: 'Invalid table: ' + tableName
+            };
+        }
+
+        var useConditionScript = this.isTrue(template.getValue('evaluate_condition_using_script'));
+
+        if (!useConditionScript) {
+            var condition = template.getValue('condition');
+
+            if (condition) {
+                gr.addEncodedQuery(condition);
+            }
+        }
+
+        gr.query();
+
+        var generated = 0;
+        var skipped = 0;
+        var failed = 0;
+
+        while (gr.next()) {
+            var result = this.createDocument(templateSysId, gr);
+
+            if (result.status == 'success') {
+                generated++;
+            } else if (result.status == 'skipped') {
+                skipped++;
+            } else {
+                failed++;
+            }
+        }
+
+        return {
+            status: 'success',
+            generated: generated,
+            skipped: skipped,
+            failed: failed
+        };
+    },
+
+    /*
+     * Generate final document.
+     */
+    generateDocument: function(template, record) {
+        try {
+            var html = template.getValue('html_template') || '';
+
+            if (!html) {
+                throw 'HTML Template is empty.';
+            }
+
+            html = this.decodeHTML(html);
+
+            // Replace normal ${field} values from main source record
+            html = this.replaceMainFieldMappings(template, html, record);
+
+            // Replace $${subtemplate_name} sections
+            html = this.renderSubTemplates(template, html, record);
+
+            // Wrap as Word-compatible HTML
+            var finalHtml = this.wrapAsWordHtml(html);
+
+            var fileName = this.getFileName(template, record);
+
+            var attachmentSysId = this.createDocAttachment(record, finalHtml, fileName);
+
+            this.instanceUtils.createSuccess(template, record, attachmentSysId);
+
+            return {
+                status: 'success',
+                attachment_sys_id: attachmentSysId
+            };
+
+        } catch (ex) {
+            this.instanceUtils.createFailure(template, record, ex.toString());
+
+            return {
+                status: 'failed',
+                error: ex.toString()
+            };
+        }
+    },
+
+    /*
+     * Evaluate template condition.
+     *
+     * Current simple version:
+     * - If condition empty → true
+     * - If condition exists → checks current record against encoded query
+     */
+    evaluateCondition: function(template, record) {
+        if (this.isTrue(template.getValue('evaluate_condition_using_script'))) {
+            try {
+                var script = template.getValue('script_for_condition');
+
+                if (!script) {
+                    gs.error('DocuMate condition script is empty for template: ' + template.getUniqueValue());
+                    return false;
+                }
+
+                var evaluator = new GlideScopedEvaluator();
+                evaluator.putVariable('current', record);
+                evaluator.putVariable('result', false);
+                evaluator.evaluateScript(template, 'script_for_condition');
+                var result = evaluator.getVariable('result');
+                return result == true;
+
+            } catch (ex) {
+                gs.error('DocuMate condition script failed for template ' +
+                    template.getUniqueValue() + ': ' + ex.toString());
+
+                return false;
+            }
+        }
+        var condition = template.getValue('condition');
+
+        if (!condition) {
+            return true;
+        }
+
+        var gr = new GlideRecord(record.getTableName());
+        gr.addQuery('sys_id', record.getUniqueValue());
+        gr.addEncodedQuery(condition);
+        gr.query();
+
+        return gr.hasNext();
+    },
+
+    /*
+     * File name logic.
+     *
+     * Supports:
+     * - default_file_name
+     * - dynamic_name + script_for_naming
+     */
+    getFileName: function(template, record) {
+        var fileName = template.getValue('default_file_name') || 'document';
+
+        if (this.isTrue(template.getValue('dynamic_name'))) {
+            try {
+                var evaluator = new GlideScopedEvaluator();
+
+                evaluator.putVariable('current', record);
+                evaluator.putVariable('template', template);
+                evaluator.putVariable('result', fileName);
+
+                evaluator.evaluateScript(template, 'script_for_naming');
+
+                var result = evaluator.getVariable('result');
+
+                if (result !== null && result !== undefined && result.toString() !== '') {
+                    fileName = result.toString();
+                }
+
+            } catch (ex) {
+                gs.error('DocuMate naming script failed: ' + ex.toString());
+            }
+        }
+
+        if (fileName === null || fileName === undefined || fileName.toString() === '') {
+            fileName = 'document';
+        }
+
+        fileName = fileName.toString();
+
+        // Remove invalid filename characters
+        fileName = fileName.replace(/[\/\\:*?"<>|]/g, '-').trim();
+
+        if (!fileName) {
+            fileName = 'document';
+        }
+
+        // Avoid duplicate .doc.doc
+        if (fileName.toLowerCase().slice(-4) != '.doc') {
+            fileName += '.doc';
+        }
+
+        return fileName;
+    },
+
+    /*
+     * Replace main template field mappings.
+     *
+     * Main template tokens:
+     * ${number}
+     * ${short_description}
+     */
+    replaceMainFieldMappings: function(template, html, record) {
+        var fm = new GlideRecord('x_2162040_documate_field_mapping');
+        fm.addQuery('template', template.getUniqueValue());
+        fm.addQuery('field_of_sub_template', false);
+        fm.query();
+
+        while (fm.next()) {
+            var name = fm.getValue('name');
+            var value = this.getMappingValue(fm, record, null, template, '');
+
+            value = this.escapeHTML(value);
+            html = html.split('${' + name + '}').join(value);
+        }
+
+        return html;
+    },
+
+    /*
+     * Render all $${subtemplate_name} placeholders.
+     */
+    renderSubTemplates: function(template, html, parentRecord) {
+        var subTemplateNames = this.extractSubTemplateTokens(html);
+
+        for (var i = 0; i < subTemplateNames.length; i++) {
+            var subTemplateName = subTemplateNames[i];
+
+            var subTemplate = this.getSubTemplate(template.getUniqueValue(), subTemplateName);
+
+            var replacementHtml = '';
+
+            if (!subTemplate) {
+                replacementHtml = '<p><i>Sub Template not configured: ' +
+                    this.escapeHTML(subTemplateName) +
+                    '</i></p>';
+            } else {
+                replacementHtml = this.renderSubTemplate(subTemplate, parentRecord);
+            }
+
+            html = html.split('$${' + subTemplateName + '}').join(replacementHtml);
+        }
+
+        return html;
+    },
+
+    /*
+     * Find sub template by:
+     * 1. name field if you added it
+     * 2. fallback to template_reference_field for current setup
+     */
+    getSubTemplate: function(templateSysId, subTemplateName) {
+        var st = new GlideRecord('x_2162040_documate_sub_template');
+        st.addQuery('template', templateSysId);
+        st.addQuery('template_reference_field', subTemplateName);
+        st.query();
+
+        if (st.next()) {
+            return st;
+        }
+
+        return null;
+    },
+
+    /*
+     * Render a single sub template.
+     */
+    renderSubTemplate: function(subTemplate, parentRecord) {
+        var records = this.getSubTemplateRecords(subTemplate, parentRecord);
+
+        if (!records || records.length === 0) {
+            return subTemplate.getValue('empty_message') || '';
+        }
+        return this.renderSubTemplateAsBlocks(subTemplate, records, parentRecord);
+    },
+
+    /*
+     * Get records for sub template.
+     *
+     * Supports:
+     * - evaluate_records_using_script = true
+     * - normal query using table + template_reference_field + condition
+     */
+    getSubTemplateRecords: function(subTemplate, parentRecord) {
+        var records = [];
+        var tableName = subTemplate.getValue('table');
+
+        if (!tableName) {
+            return records;
+        }
+
+        if (this.isTrue(subTemplate.getValue('evaluate_records_using_script'))) {
+            var ids = this.evaluateRecordSelectionScript(subTemplate, parentRecord);
+
+            return this.loadRecordsByIds(tableName, ids);
+        }
+
+        var gr = new GlideRecord(tableName);
+        var condition = subTemplate.getValue('condition');
+        if (condition) {
+            gr.addEncodedQuery(condition);
+        }
+        gr.query();
+
+        while (gr.next()) {
+            records.push(gr.getUniqueValue());
+        }
+
+        return this.loadRecordsByIds(tableName, records);
+    },
+
+    /*
+     * Runs sub template record selection script.
+     */
+    evaluateRecordSelectionScript: function(subTemplate, parentRecord) {
+        try {
+            var evaluator = new GlideScopedEvaluator();
+
+            evaluator.putVariable('parent', parentRecord);
+            evaluator.putVariable('sub_template', subTemplate);
+            evaluator.putVariable('result', []);
+
+            evaluator.evaluateScript(subTemplate, 'record_selection_script');
+
+            var result = evaluator.getVariable('result');
+
+            if (!result) {
+                return [];
+            }
+
+            if (typeof result == 'string') {
+                return result.split(',');
+            }
+
+            return result;
+
+        } catch (ex) {
+            gs.error('DocuMate record selection script failed for Sub Template ' +
+                subTemplate.getUniqueValue() + ': ' + ex.toString());
+
+            return [];
+        }
+    },
+
+    /*
+     * Load records as GlideRecords.
+     */
+    loadRecordsByIds: function(tableName, ids) {
+        var list = [];
+
+        if (!ids || ids.length === 0) {
+            return list;
+        }
+
+        for (var i = 0; i < ids.length; i++) {
+            var gr = new GlideRecord(tableName);
+
+            if (gr.get(ids[i])) {
+                list.push(gr);
+            }
+        }
+
+        return list;
+    },
+
+    /*
+     * Detail-block rendering.
+     *
+     * Sub Template HTML repeats once per selected record.
+     */
+    renderSubTemplateAsBlocks: function(subTemplate, records, parentRecord) {
+        var rowHtml = subTemplate.getValue('html_template') || '';
+
+        if (!rowHtml) {
+            return '';
+        }
+
+        rowHtml = this.decodeHTML(rowHtml);
+
+        var finalHtml = '';
+
+        for (var i = 0; i < records.length; i++) {
+            var currentRecord = records[i];
+            var block = rowHtml;
+
+            // Built-in row number token
+            block = block.split('${row_number}').join((i + 1).toString());
+
+            block = this.replaceSubTemplateFieldMappings(
+                subTemplate,
+                block,
+                currentRecord,
+                parentRecord,
+                i + 1
+            );
+
+            finalHtml += block;
+        }
+
+        return finalHtml;
+    },
+
+    /*
+     * Replace field mappings inside sub template HTML.
+     *
+     * Sub template tokens:
+     * ${update_type}
+     * ${target_name}
+     * ${description}
+     */
+    replaceSubTemplateFieldMappings: function(subTemplate, html, currentRecord, parentRecord, rowNumber) {
+        var fm = new GlideRecord('x_2162040_documate_field_mapping');
+        fm.addQuery('sub_template', subTemplate.getUniqueValue());
+        fm.query();
+
+        while (fm.next()) {
+            var name = fm.getValue('name');
+
+            if (!name) {
+                continue;
+            }
+
+            var value = this.getMappingValue(fm, currentRecord, parentRecord, subTemplate, rowNumber);
+                value = this.escapeHTML(value);
+
+            html = html.split('${' + name + '}').join(value);
+        }
+
+        return html;
+    },
+
+    /*
+     * Get mapping value from direct field or script.
+     */
+    getMappingValue: function(mapping, currentRecord, parentRecord, contextRecord, rowNumber) {
+        if (this.isTrue(mapping.getValue('evaluate_value_using_script'))) {
+            return this.evaluateMappingScript(mapping, currentRecord, parentRecord, contextRecord, rowNumber);
+        }
+
+        var fieldName = mapping.getValue('field');
+        if (!fieldName) {
+            return '';
+        }
+
+        return currentRecord.getDisplayValue(fieldName);
+    },
+
+    /*
+     * Field Mapping script evaluation.
+     *
+     * For main template:
+     * current = main record
+     * parent = null
+     *
+     * For sub template:
+     * current = child/section record
+     * parent = main record
+     */
+    evaluateMappingScript: function(mapping, currentRecord, parentRecord, contextRecord, rowNumber) {
+        try {
+            var evaluator = new GlideScopedEvaluator();
+
+            evaluator.putVariable('current', currentRecord);
+            evaluator.putVariable('parent', parentRecord);
+            evaluator.putVariable('context', contextRecord);
+            evaluator.putVariable('result', '');
+
+            evaluator.evaluateScript(mapping, 'script_value');
+
+            var result = evaluator.getVariable('result');
+
+            if (result === null || result === undefined) {
+                return '';
+            }
+
+            return result.toString();
+
+        } catch (ex) {
+            gs.error('DocuMate field mapping script failed for mapping ' +
+                mapping.getUniqueValue() + ': ' + ex.toString());
+
+            return '';
+        }
+    },
+
+    /*
+     * Create .doc attachment.
+     */
+    createDocAttachment: function(record, html, fileName) {
+        var attachment = new GlideSysAttachment();
+
+        return attachment.write(
+            record,
+            fileName,
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            html
+        );
+    },
+
+    /*
+     * Word-compatible HTML wrapper.
+     */
+    wrapAsWordHtml: function(html) {
+        var body = this.extractBodyContent(html);
+
+        return '<!DOCTYPE html>' +
+            '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+            'xmlns:w="urn:schemas-microsoft-com:office:word" ' +
+            'xmlns="http://www.w3.org/TR/REC-html40">' +
+            '<head>' +
+            '<meta charset="utf-8">' +
+            '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' +
+            '<title>DocuMate Document</title>' +
+            '<style>' +
+            '@page WordSection1 { size: 8.5in 11.0in; margin: 0.75in 0.75in 0.75in 0.75in; }' +
+            'div.WordSection1 { page: WordSection1; }' +
+            'body { font-family: Arial, sans-serif; font-size: 10pt; }' +
+            'h1 { font-size: 18pt; }' +
+            'h2 { font-size: 14pt; margin-top: 18px; }' +
+            'h3 { font-size: 12pt; margin-top: 14px; }' +
+            'table { border-collapse: collapse; width: 100%; margin-top: 8px; margin-bottom: 8px; }' +
+            'th, td { border: 1px solid #000000; padding: 6px; vertical-align: top; }' +
+            'th { background-color: #f2f2f2; font-weight: bold; }' +
+            '.change-block { margin-bottom: 12px; }' +
+            'pre { background-color: #f5f5f5; border: 1px solid #cccccc; padding: 8px; font-family: Consolas, monospace; font-size: 9pt; white-space: pre-wrap; }' +
+            '</style>' +
+            '</head>' +
+            '<body>' +
+            '<div class="WordSection1">' +
+            body +
+            '</div>' +
+            '</body>' +
+            '</html>';
+    },
+
+    extractBodyContent: function(html) {
+        if (!html) {
+            return '';
+        }
+
+        var bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+
+        if (bodyMatch && bodyMatch.length > 1) {
+            return bodyMatch[1];
+        }
+
+        html = html.replace(/<!DOCTYPE[^>]*>/gi, '');
+        html = html.replace(/<html[^>]*>/gi, '');
+        html = html.replace(/<\/html>/gi, '');
+        html = html.replace(/<head[\s\S]*?<\/head>/gi, '');
+        html = html.replace(/<body[^>]*>/gi, '');
+        html = html.replace(/<\/body>/gi, '');
+
+        return html;
+    },
+
+    /*
+     * Decode escaped HTML from ServiceNow HTML fields.
+     */
+    decodeHTML: function(value) {
+        if (value === null || value === undefined) {
+            return '';
+        }
+
+        value = value.toString();
+
+        return value
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#034;/g, '"')
+            .replace(/&#34;/g, '"')
+            .replace(/&#039;/g, "'")
+            .replace(/&#39;/g, "'")
+            .replace(/&apos;/g, "'")
+            .replace(/&amp;/g, '&');
+    },
+
+    escapeHTML: function(value) {
+        if (value === null || value === undefined) {
+            return '';
+        }
+
+        value = value.toString();
+
+        return value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    },
+
+    /*
+     * Extract $${sub_template_name}
+     */
+    extractSubTemplateTokens: function(text) {
+        var sections = [];
+        var found = {};
+
+        if (!text) {
+            return sections;
+        }
+
+        var regex = /\$\$\{([^}]+)\}/g;
+        var match;
+
+        while ((match = regex.exec(text)) !== null) {
+            var sectionName = match[1].trim();
+
+            if (!found[sectionName]) {
+                found[sectionName] = true;
+                sections.push(sectionName);
+            }
+        }
+
+        return sections;
+    },
+
+    isTrue: function(value) {
+        return value == true || value == 'true' || value == '1';
+    },
+
+    type: 'CoreEngine'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-10-31 15:40:34</sys_created_on>
+        <sys_id>1e9f2b01c314135076cbbecdd4013131</sys_id>
+        <sys_mod_count>17</sys_mod_count>
+        <sys_name>CoreEngine</sys_name>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_update_name>sys_script_include_1e9f2b01c314135076cbbecdd4013131</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-11-10 06:22:07</sys_updated_on>
+    </sys_script_include>
+</record_update>

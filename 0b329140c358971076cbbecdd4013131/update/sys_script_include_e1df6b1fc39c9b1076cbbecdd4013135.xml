@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_2162040_documate.SubTemplateFlow</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>SubTemplateFlow</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var SubTemplateFlow = Class.create();
+SubTemplateFlow.prototype = {
+    initialize: function() {},
+
+    // Button visibility
+    canRetrieveFields: function(subTemplate) {
+        return subTemplate.getValue('state') == 'draft';
+    },
+
+    canValidate: function(subTemplate) {
+        return subTemplate.getValue('state') == 'mapping';
+    },
+
+    canComplete: function(subTemplate) {
+        return subTemplate.getValue('state') == 'validated';
+    },
+
+    canEditAgain: function(subTemplate) {
+        return subTemplate.getValue('state') != 'draft';
+    },
+
+    // Button actions
+    retrieveFields: function(subTemplate) {
+        var html = subTemplate.getValue('html_template');
+
+        if (!html) {
+            return {
+                success: false,
+                message: 'Please add SubTemplate HTML before retrieving fields.'
+            };
+        }
+
+        var tableName = subTemplate.getValue('table');
+
+        if (!tableName) {
+            return {
+                success: false,
+                message: 'Please select a table before retrieving fields.'
+            };
+        }
+
+        var fieldUtil = new x_2162040_documate.fieldMappingUtils();
+        fieldUtil.subtempRetrive(subTemplate);
+
+        subTemplate.setValue('state', 'mapping');
+        subTemplate.update();
+
+        return {
+            success: true,
+            message: 'Sub Template fields retrieved successfully. State moved to Mapping.'
+        };
+    },
+
+    validateSubTemplate: function(subTemplate) {
+        var errors = [];
+
+        //mapping
+        var fm = new GlideRecord('x_2162040_documate_field_mapping');
+        fm.addQuery('field_of_sub_template', true);
+        fm.addQuery('sub_template', subTemplate.getUniqueValue());
+        fm.query();
+
+        var fmcnt = 0;
+        while (fm.next()) {
+            if ((fm.getValue('evaluate_value_using_script') == true && gs.nil(fm.getValue('script_value'))) || (fm.getValue('evaluate_value_using_script') == false && gs.nil(fm.getValue('field')))) {
+                fmcnt++;
+            }
+        }
+
+        if (fmcnt > 0) {
+            errors.push('Field Mapping of ' + fmcnt + ' Sub Template Fields is Required.');
+        }
+
+        if (errors.length > 0) {
+            return {
+                success: false,
+                message: errors.join('<br/>')
+            };
+        }
+
+        subTemplate.setValue('state', 'validated');
+        subTemplate.update();
+
+        return {
+            success: true,
+            message: 'Sub Template validated successfully.'
+        };
+    },
+
+
+    completeSubTemplate: function(subTemplate) {
+        if (subTemplate.getValue('state') != 'validated') {
+            return {
+                success: false,
+                message: 'Only validated Sub Templates can be completed.'
+            };
+        }
+
+        subTemplate.setValue('state', 'complete');
+        subTemplate.update();
+
+        return {
+            success: true,
+            message: 'Sub Template marked as Complete.'
+        };
+    },
+
+    editAgain: function(subTemplate) {
+        subTemplate.setValue('state', 'draft');
+        subTemplate.update();
+
+        return {
+            success: true,
+            message: 'Sub Template moved back to Draft.'
+        };
+    },
+
+    type: 'SubTemplateFlow'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-11-07 15:28:51</sys_created_on>
+        <sys_id>e1df6b1fc39c9b1076cbbecdd4013135</sys_id>
+        <sys_mod_count>7</sys_mod_count>
+        <sys_name>SubTemplateFlow</sys_name>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_update_name>sys_script_include_e1df6b1fc39c9b1076cbbecdd4013135</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-11-10 06:22:21</sys_updated_on>
+    </sys_script_include>
+</record_update>

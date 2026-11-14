@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_script">
+    <sys_script action="INSERT_OR_UPDATE">
+        <abort_action>false</abort_action>
+        <access>package_private</access>
+        <action_delete>false</action_delete>
+        <action_insert>false</action_insert>
+        <action_query>false</action_query>
+        <action_update>false</action_update>
+        <active>true</active>
+        <add_message>false</add_message>
+        <advanced>true</advanced>
+        <change_fields>false</change_fields>
+        <client_callable>false</client_callable>
+        <collection>x_2162040_documate_field_mapping</collection>
+        <condition/>
+        <description/>
+        <execute_function>false</execute_function>
+        <filter_condition/>
+        <is_rest>false</is_rest>
+        <message/>
+        <name>Set Field Mapping Readonly</name>
+        <order>100</order>
+        <priority>100</priority>
+        <rest_method/>
+        <rest_method_text/>
+        <rest_service/>
+        <rest_service_text/>
+        <rest_variables/>
+        <role_conditions/>
+        <script><![CDATA[(function executeRule(current, previous /*null when async*/) {
+
+    g_scratchpad.lock_field_mapping = false;
+    g_scratchpad.lock_message = '';
+
+    // If this Field Mapping belongs to a Sub Template
+    if (!gs.nil(current.getValue('sub_template'))) {
+        var st = new GlideRecord('x_2162040_documate_sub_template');
+
+        if (st.get(current.getValue('sub_template'))) {
+            var subState = st.getValue('state');
+
+            if (subState == 'validated' || subState == 'complete') {
+                g_scratchpad.lock_field_mapping = true;
+                g_scratchpad.lock_message = 'This Field Mapping is read-only because the Sub Template is in ' + subState + ' state.';
+                return;
+            }
+        }
+    }
+
+    // If this Field Mapping belongs directly to a Template
+    if (!gs.nil(current.getValue('template'))) {
+        var temp = new GlideRecord('x_2162040_documate_templates');
+
+        if (temp.get(current.getValue('template'))) {
+            var tempState = temp.getValue('state');
+
+            if (tempState == 'validated' || tempState == 'published') {
+                g_scratchpad.lock_field_mapping = true;
+                g_scratchpad.lock_message = 'This Field Mapping is read-only because the Template is  in ' + tempState + ' state.';
+                return;
+            }
+        }
+    }
+
+})(current, previous);]]></script>
+        <sys_class_name>sys_script</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-11-07 19:09:41</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>e142202bc354db1076cbbecdd40131a8</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>Set Field Mapping Readonly</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_update_name>sys_script_e142202bc354db1076cbbecdd40131a8</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-11-08 07:27:11</sys_updated_on>
+        <template/>
+        <when>before_display</when>
+    </sys_script>
+    <sys_translated_text action="delete_multiple" query="documentkey=e142202bc354db1076cbbecdd40131a8"/>
+</record_update>

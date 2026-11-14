@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_2162040_documate.TemplateFlow</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>TemplateFlow</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var TemplateFlow = Class.create();
+TemplateFlow.prototype = {
+    initialize: function() {},
+
+    // Button visibility
+    canRetrieveFields: function(template) {
+        var state = template.getValue('state');
+
+        return state == 'draft';
+    },
+
+    canValidate: function(template) {
+        return template.getValue('state') == 'mapping';
+    },
+
+    canGenerateTestDocument: function(template) {
+        return template.getValue('state') == 'published';
+    },
+
+    canPublish: function(template) {
+        return template.getValue('state') == 'validated';
+    },
+
+    canEditAgain: function(template) {
+        var state = template.getValue('state');
+
+        return state != 'draft';
+    },
+
+    //  * Button actions
+    retrieveFields: function(template) {
+        var html = template.getValue('html_template');
+
+        if (!html) {
+            return {
+                success: false,
+                message: 'Please add HTML Template before retrieving fields.'
+            };
+        }
+
+        var fieldUtil = new x_2162040_documate.fieldMappingUtils();
+        fieldUtil.tempRetrive(template);
+
+        template.setValue('state', 'mapping');
+        template.update();
+
+        return {
+            success: true,
+            message: 'Fields and sub templates retrieved successfully. Template moved to Mapping.'
+        };
+    },
+
+    validateTemplate: function(template) {
+        var errors = [];
+
+        if (template.getValue('evaluate_condition_using_script') == '1' &&
+            gs.nil(template.getValue('script_for_condition'))) {
+            errors.push('Script for Condition is required when Evaluate Condition Using Script is checked.');
+        }
+
+        //validate if Fields done
+        var fm = new GlideRecord('x_2162040_documate_field_mapping');
+        fm.addQuery('template', template.getUniqueValue());
+        fm.addQuery('field_of_sub_template', false);
+        fm.query();
+
+        var fmcnt = 0;
+        while (fm.next()) {
+            if ((fm.getValue('evaluate_value_using_script') == true && gs.nil(fm.getValue('script_value'))) || (fm.getValue('evaluate_value_using_script') == false && gs.nil(fm.getValue('field')))) {
+                fmcnt++;
+            }
+        }
+
+        if (fmcnt > 0) {
+            errors.push('Field Mapping of ' + fmcnt + ' Template Fields is Required.');
+        }
+
+        //validate if Subtemplates done
+        var subtemp = new GlideRecord('x_2162040_documate_sub_template');
+        subtemp.addQuery('template', template.getUniqueValue());
+        subtemp.query();
+
+        var subcnt = 0;
+        while (subtemp.next()) {
+            if (subtemp.getValue('state') != 'complete') {
+                subcnt++;
+            }
+        }
+
+        if (subcnt > 0) {
+            errors.push('Completion State of ' + subcnt + ' Sub Templates is Required.');
+        }
+
+        if (errors.length > 0) {
+            return {
+                success: false,
+                message: errors.join('<br/>')
+            };
+        }
+
+        template.setValue('state', 'validated');
+        template.update();
+
+        return {
+            success: true,
+            message: 'Template validated successfully.'
+        };
+    },
+
+    publishTemplate: function(template) {
+        if (template.getValue('state') != 'validated') {
+            return {
+                success: false,
+                message: 'Only validated templates can be published.'
+            };
+        }
+
+        var whenToRun = template.getValue('when_to_run');
+
+        if (!whenToRun) {
+            return {
+                success: false,
+                message: 'Please select When to run before publishing.'
+            };
+        }
+
+        var automation = new global.TemplateAutomation();
+        automation.deleteRule(template);
+        automation.deleteSchedule(template);
+        template.setValue('business_rule', '');
+        template.setValue('scheduled_job', '');
+
+        if (whenToRun == 'br') {
+            var brSysId = automation.insertRule(template);
+
+            if (!brSysId) {
+                return {
+                    success: false,
+                    message: 'Template could not be published because Business Rule creation failed.'
+                };
+            }
+
+            template.setValue('business_rule', brSysId);
+        }
+
+        if (whenToRun == 'schedule') {
+            if (!template.getValue('run_type')) {
+                return {
+                    success: false,
+                    message: 'Run Type is required for Scheduled Time.'
+                };
+            }
+
+            if (!template.getValue('time')) {
+                return {
+                    success: false,
+                    message: 'Time is required for Scheduled Time.'
+                };
+            }
+
+            var scheduleSysId = automation.insertSchedule(template);
+
+            if (!scheduleSysId) {
+                return {
+                    success: false,
+                    message: 'Template could not be published because Scheduled Job creation failed.'
+                };
+            }
+
+            template.setValue('scheduled_job', scheduleSysId);
+        }
+
+        template.setValue('state', 'published');
+        template.update();
+
+        if (whenToRun == 'br') {
+            return {
+                success: true,
+                message: 'Template published successfully. Business Rule created.'
+            };
+        }
+
+        return {
+            success: true,
+            message: 'Template published successfully. Scheduled Job created.'
+        };
+    },
+
+    editAgain: function(template) {
+        var automation = new global.TemplateAutomation();
+
+        automation.deleteRule(template);
+        automation.deleteSchedule(template);
+
+        template.setValue('business_rule', '');
+        template.setValue('scheduled_job', '');
+        template.setValue('state', 'draft');
+        template.update();
+
+        return {
+            success: true,
+            message: 'Template moved back to Draft.'
+        };
+    },
+
+    type: 'TemplateFlow'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-11-05 14:41:51</sys_created_on>
+        <sys_id>38715576c3d4571076cbbecdd40131f4</sys_id>
+        <sys_mod_count>12</sys_mod_count>
+        <sys_name>TemplateFlow</sys_name>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_update_name>sys_script_include_38715576c3d4571076cbbecdd40131f4</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-11-10 06:22:14</sys_updated_on>
+    </sys_script_include>
+</record_update>

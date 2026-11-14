@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="7469bcd8c3d41b1076cbbecdd40131cb" label="Sub Template" max_length="40" name="x_2162040_documate_sub_template" type="collection">
+        <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" read_only="true" read_only_option="instance_configured" type="string"/>
+        <element default="// Return sys_ids of records to render in this sub-template.&#13;&#10;// Available variables:&#13;&#10;// parent       = parent/main record&#13;&#10;// sub_template = current Sub Template configuration record&#13;&#10;// result       = array of sys_ids or comma-separated sys_id string&#13;&#10;" label="Record Selection Script" max_length="8000" name="record_selection_script" type="script"/>
+        <element choice="3" default="draft" label="State" max_length="40" name="state" read_only="true" read_only_option="instance_configured" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Mapping" sequence="2" value="mapping"/>
+                <element inactive_on_update="false" label="Validated" sequence="3" value="validated"/>
+                <element inactive_on_update="false" label="Draft" sequence="1" value="draft"/>
+                <element inactive_on_update="false" label="Complete" sequence="0" value="complete"/>
+            </choice>
+        </element>
+        <element label="Empty Message" mandatory="true" max_length="1000" name="empty_message" type="string"/>
+        <element dependent="table" dependent_on_field="table" label="Condition" max_length="4000" name="condition" type="conditions" use_dependent_field="true"/>
+        <element label="Table" mandatory="true" max_length="80" name="table" type="table_name"/>
+        <element label="HTML Template" mandatory="true" max_length="8000" name="html_template" type="html"/>
+        <element label="Evaluate Records Using Script" max_length="40" name="evaluate_records_using_script" type="boolean"/>
+        <element label="Template" max_length="32" name="template" read_only="true" read_only_option="instance_configured" reference="x_2162040_documate_templates" type="reference"/>
+        <element label="Template Reference Field" max_length="100" name="template_reference_field" read_only="true" read_only_option="instance_configured" type="string"/>
+        <element label="Name" mandatory="true" max_length="40" name="name" type="string"/>
+        <index name="index">
+            <element name="template"/>
+        </index>
+    </element>
+</database>

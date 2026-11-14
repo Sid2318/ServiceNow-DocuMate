@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_2162040_documate.fieldMappingUtils</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>fieldMappingUtils</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var fieldMappingUtils = Class.create();
+fieldMappingUtils.prototype = {
+    initialize: function() {},
+
+    tempRetrive: function(current) {
+        //delete previous
+        this.deletePrevious(current);
+
+        //extract new fields
+        var html = current.getValue('html_template');
+        var fields = this.extractFieldTokens(html);
+        var subtemp = this.extractSubTempTokens(html);
+
+		//create mapping
+		this.createFieldMappings(current, fields,false);
+		this.createSubTemplates(current, subtemp);
+    },
+
+	subtempRetrive: function(current) {
+        //delete previous
+        var grfield = new GlideRecord('x_2162040_documate_field_mapping');
+        grfield.addQuery('sub_template', current.getUniqueValue());
+        grfield.query();
+        grfield.deleteMultiple();
+
+        //extract new fields
+        var html = current.getValue('html_template');
+        var fields = this.extractFieldTokens(html);
+
+		//create mapping
+		this.createFieldMappings(current, fields,true);
+    },
+
+    deletePrevious: function(current) {
+        var grfield = new GlideRecord('x_2162040_documate_field_mapping');
+        grfield.addQuery('template', current.getUniqueValue());
+        grfield.query();
+        grfield.deleteMultiple();
+
+
+        var grSubtemp = new GlideRecord('x_2162040_documate_sub_template');
+        grSubtemp.addQuery('template', current.getUniqueValue());
+        grSubtemp.query();
+        grSubtemp.deleteMultiple();
+    },
+
+    createFieldMappings: function(template, fields,isSubtemp) {
+        var templateSysId = template.getUniqueValue();
+		var tempTable = template.getValue('table');
+
+        for (var i = 0; i < fields.length; i++) {
+            var token = fields[i];
+
+            var fm = new GlideRecord('x_2162040_documate_field_mapping');
+            fm.initialize();
+
+            fm.setValue('name',  token );
+			fm.setValue('table', tempTable );
+			fm.setValue('field_of_sub_template',  isSubtemp );
+			if(isSubtemp){
+				fm.setValue('template', template.getValue('template'));
+				fm.setValue('sub_template',  templateSysId );
+			}
+			else{
+				fm.setValue('template', templateSysId); //only template wali case
+			}
+
+            fm.insert();
+        }
+
+        gs.info('Created field mappings count: ' + fields.length);
+    },
+
+    createSubTemplates: function(template, subtemps) {
+        var templateSysId = template.getUniqueValue();
+
+        for (var i = 0; i < subtemps.length; i++) {
+            var sectionName = subtemps[i];
+
+            var st = new GlideRecord('x_2162040_documate_sub_template');
+            st.initialize();
+
+            st.setValue('template', templateSysId);
+            st.setValue('template_reference_field',  sectionName );
+			st.setValue('empty_message',"No Data");
+
+            st.insert();
+        }
+
+    },
+
+    extractFieldTokens: function(text) {
+        var tokens = [];
+        var found = {};
+
+        if (!text)
+            return tokens;
+
+        //  * ${short_description}
+
+        var regex = /(^|[^\$])\$\{([^}]+)\}/g;
+        var match;
+
+        while ((match = regex.exec(text)) !== null) {
+            var token = match[2].trim();
+
+            if (!found[token]) {
+                found[token] = true;
+                tokens.push(token);
+            }
+        }
+
+        return tokens;
+    },
+
+    extractSubTempTokens: function(text) {
+        var sections = [];
+        var found = {};
+
+        if (!text)
+            return sections;
+
+        //  * $${captured_updates}
+
+        var regex = /\$\$\{([^}]+)\}/g;
+        var match;
+
+        while ((match = regex.exec(text)) !== null) {
+            var sectionName = match[1].trim();
+
+            if (!found[sectionName]) {
+                found[sectionName] = true;
+                sections.push(sectionName);
+            }
+        }
+
+        return sections;
+    },
+
+    type: 'fieldMappingUtils'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-10-30 18:53:01</sys_created_on>
+        <sys_id>35c88774c35c5f1076cbbecdd4013105</sys_id>
+        <sys_mod_count>6</sys_mod_count>
+        <sys_name>fieldMappingUtils</sys_name>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_update_name>sys_script_include_35c88774c35c5f1076cbbecdd4013105</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-11-10 06:22:36</sys_updated_on>
+    </sys_script_include>
+</record_update>
