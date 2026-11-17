@@ -1,0 +1,642 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_2162040_documate.emailUtils</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>emailUtils</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var emailUtils = Class.create();
+emailUtils.prototype = {
+    initialize: function() {
+        this.EVENT_NAME = 'x_2162040_documate.send_document';
+    },
+
+    /*
+     * Called from CoreEngine after document is generated and instance is created.
+     *
+     * Flow:
+     * - Load DocuMate instance
+     * - Copy generated document attachment to instance
+     * - For each Email Template:
+     *      Resolve subject/body/recipients
+     *      Queue event
+     * - Update instance email_status and email_log
+     */
+    sendEmailsForTemplate: function(template, record, attachmentSysId, instanceSysId) {
+        var result = {
+            queued: 0,
+            skipped: 0,
+            failed: 0,
+            status: 'none',
+            log: ''
+        };
+
+        var logLines = [];
+        logLines.push('DocuMate email processing started.');
+        logLines.push('Time: ' + new GlideDateTime().getDisplayValue());
+        logLines.push('Template: ' + template.getDisplayValue());
+        logLines.push('Source table: ' + record.getTableName());
+        logLines.push('Source record: ' + record.getDisplayValue());
+        logLines.push('Attachment sys_id: ' + (attachmentSysId || ''));
+        logLines.push('Instance sys_id: ' + (instanceSysId || ''));
+        logLines.push('');
+
+        if (!this.isTrue(template.getValue('send_email'))) {
+            result.status = 'none';
+            logLines.push('Send Email is false. No email processing performed.');
+            result.log = logLines.join('\n');
+            this.updateInstanceEmailInfo(instanceSysId, result.status, result.log);
+            return result;
+        }
+
+        var instance = new GlideRecord('x_2162040_documate_instance');
+        if (!instanceSysId || !instance.get(instanceSysId)) {
+            result.failed = 1;
+            result.status = 'failed';
+            logLines.push('Failed: DocuMate instance not found.');
+            result.log = logLines.join('\n');
+            return result;
+        }
+
+        //Always copy generated document to instance for DocuMate emails.
+        var copied = this.copyAttachmentToInstance(attachmentSysId, instance);
+        logLines.push('Attachment copied to instance: ' + (copied ? 'yes' : 'no'));
+        logLines.push('');
+
+        var emailTemplate = new GlideRecord('x_2162040_documate_email');
+        emailTemplate.addQuery('template', template.getUniqueValue());
+        emailTemplate.query();
+
+        var emailTemplateCount = 0;
+
+        while (emailTemplate.next()) {
+            emailTemplateCount++;
+
+            try {
+                var one = this.sendOneEmail(emailTemplate, template, record, attachmentSysId, instance);
+
+                if (one.status == 'queued') {
+                    result.queued++;
+                } else if (one.status == 'skipped') {
+                    result.skipped++;
+                } else {
+                    result.failed++;
+                }
+
+                logLines.push('Email Template: ' + emailTemplate.getDisplayValue());
+                logLines.push('Status: ' + one.status);
+                logLines.push('Subject: ' + (one.subject || ''));
+                logLines.push('To: ' + (one.to || []).join(', '));
+                logLines.push('Cc: ' + (one.cc || []).join(', '));
+                logLines.push('Bcc: ' + (one.bcc || []).join(', '));
+
+                if (one.message) {
+                    logLines.push('Message: ' + one.message);
+                }
+
+                if (one.error) {
+                    logLines.push('Error: ' + one.error);
+                }
+
+                logLines.push('');
+
+            } catch (ex) {
+                result.failed++;
+
+                logLines.push('Email Template: ' + emailTemplate.getDisplayValue());
+                logLines.push('Status: failed');
+                logLines.push('Error: ' + ex.toString());
+                logLines.push('');
+
+                gs.error(
+                    'DocuMate email failed for email template ' +
+                    emailTemplate.getUniqueValue() +
+                    ': ' +
+                    ex.toString()
+                );
+            }
+        }
+
+        if (emailTemplateCount === 0) {
+            result.skipped++;
+            logLines.push('No email templates found for this DocuMate template.');
+            logLines.push('');
+        }
+
+        result.status = this.calculateEmailStatus(result.queued, result.skipped, result.failed);
+
+        logLines.push('Summary:');
+        logLines.push('Queued: ' + result.queued);
+        logLines.push('Skipped: ' + result.skipped);
+        logLines.push('Failed: ' + result.failed);
+        logLines.push('Email Status: ' + result.status);
+
+        result.log = logLines.join('\n');
+
+        this.updateInstanceEmailInfo(instanceSysId, result.status, result.log);
+
+        return result;
+    },
+
+    /*
+     * Resolve one email template and queue event.
+     */
+    sendOneEmail: function(emailTemplate, parentTemplate, record, attachmentSysId, instance) {
+        var subject = emailTemplate.getValue('mail_subject') || '';
+        var body = emailTemplate.getValue('mail_body') || '';
+
+        subject = this.decodeHTML(subject);
+        body = this.decodeHTML(body);
+
+        // Subject should not HTML-escape replacement values.
+        subject = this.replaceEmailFieldMappings(emailTemplate, subject, record, parentTemplate, false);
+
+        // Body should HTML-escape replacement values.
+        body = this.replaceEmailFieldMappings(emailTemplate, body, record, parentTemplate, true);
+
+        var to = this.getRecipients(emailTemplate, 'to', record);
+        var cc = this.getRecipients(emailTemplate, 'cc', record);
+        var bcc = this.getRecipients(emailTemplate, 'bcc', record);
+
+        // Cross-list dedupe:
+        // To wins over Cc/Bcc, Cc wins over Bcc.
+        cc = this.removeAddresses(cc, to);
+        bcc = this.removeAddresses(bcc, to);
+        bcc = this.removeAddresses(bcc, cc);
+
+        if (to.length === 0) {
+            return {
+                status: 'skipped',
+                message: 'No To recipients.',
+                subject: subject,
+                to: to,
+                cc: cc,
+                bcc: bcc
+            };
+        }
+
+        var props = {
+            subject: subject,
+            body: body,
+            to: to,
+            cc: cc,
+            bcc: bcc
+        };
+
+        gs.eventQueue(
+            this.EVENT_NAME,
+            instance,
+            to.join(','),
+            JSON.stringify(props)
+        );
+
+        return {
+            status: 'queued',
+            message: 'Email event queued: ' + this.EVENT_NAME,
+            subject: subject,
+            to: to,
+            cc: cc,
+            bcc: bcc
+        };
+    },
+
+    /*
+     * Copy generated document attachment from source record to DocuMate instance record.
+     */
+    copyAttachmentToInstance: function(attachmentSysId, instance) {
+        try {
+            if (!attachmentSysId || !instance || !instance.isValidRecord()) {
+                return false;
+            }
+
+            var att = new GlideRecord('sys_attachment');
+            if (!att.get(attachmentSysId)) {
+                return false;
+            }
+
+            var sa = new GlideSysAttachment();
+            var content = sa.getContent(att);
+
+            if (content === null || content === undefined) {
+                gs.error('DocuMate: Attachment content empty. attachmentSysId=' + attachmentSysId);
+                return false;
+            }
+
+            sa.write(
+                instance,
+                att.getValue('file_name'),
+                att.getValue('content_type'),
+                content
+            );
+
+            return true;
+
+        } catch (ex) {
+            gs.error('DocuMate: Failed to copy attachment to instance. Error: ' + ex.toString());
+            return false;
+        }
+    },
+
+    /*
+     * Update email status/log on DocuMate instance.
+     */
+    updateInstanceEmailInfo: function(instanceSysId, status, log) {
+        if (!instanceSysId) {
+            return;
+        }
+
+        var inst = new GlideRecord('x_2162040_documate_instance');
+        if (!inst.get(instanceSysId)) {
+            return;
+        }
+
+        inst.setValue('email_status', status || 'none');
+        inst.setValue('email_log', this.truncate(log || '', 7900));
+
+        inst.update();
+    },
+
+    calculateEmailStatus: function(queued, skipped, failed) {
+        queued = parseInt(queued, 10) || 0;
+        skipped = parseInt(skipped, 10) || 0;
+        failed = parseInt(failed, 10) || 0;
+
+        if (queued > 0 && skipped === 0 && failed === 0) {
+            return 'queued';
+        }
+
+        if (queued === 0 && skipped > 0 && failed === 0) {
+            return 'skipped';
+        }
+
+        if (queued === 0 && failed > 0) {
+            return 'failed';
+        }
+
+        if (queued > 0 && (skipped > 0 || failed > 0)) {
+            return 'partial';
+        }
+
+        return 'none';
+    },
+
+    /*
+     * Replace ${field} placeholders in email subject/body.
+     *
+     * escapeValues:
+     * - false for subject
+     * - true for body
+     */
+    replaceEmailFieldMappings: function(emailTemplate, text, record, parentTemplate, escapeValues) {
+        var fm = new GlideRecord('x_2162040_documate_field_mapping');
+        fm.addQuery('mapping_context', 'email_template');
+        fm.addQuery('email_template', emailTemplate.getUniqueValue());
+        fm.query();
+
+        while (fm.next()) {
+            var name = fm.getValue('name');
+
+            if (!name) {
+                continue;
+            }
+
+            var value = this.getMappingValue(fm, record, null, emailTemplate, '');
+
+            if (escapeValues) {
+                value = this.escapeHTML(value);
+            }
+
+            text = text.split('${' + name + '}').join(value);
+        }
+
+        return text;
+    },
+
+    /*
+     * Field mapping value resolver.
+     */
+    getMappingValue: function(mapping, currentRecord, parentRecord, contextRecord, rowNumber) {
+        if (this.isTrue(mapping.getValue('evaluate_value_using_script'))) {
+            return this.evaluateMappingScript(mapping, currentRecord, parentRecord, contextRecord, rowNumber);
+        }
+
+        var fieldName = mapping.getValue('field');
+
+        if (!fieldName) {
+            return '';
+        }
+
+        return currentRecord.getDisplayValue(fieldName);
+    },
+
+    /*
+     * Evaluate script-based field mappings.
+     */
+    evaluateMappingScript: function(mapping, currentRecord, parentRecord, contextRecord, rowNumber) {
+        try {
+            var evaluator = new GlideScopedEvaluator();
+
+            evaluator.putVariable('current', currentRecord);
+            evaluator.putVariable('parent', parentRecord);
+            evaluator.putVariable('context', contextRecord);
+            evaluator.putVariable('emailTemplateRecord', contextRecord);
+            evaluator.putVariable('result', '');
+
+            evaluator.evaluateScript(mapping, 'script_value');
+
+            var result = evaluator.getVariable('result');
+
+            if (result === null || result === undefined) {
+                return '';
+            }
+
+            return result.toString();
+
+        } catch (ex) {
+            gs.error(
+                'DocuMate email field mapping script failed for mapping ' +
+                mapping.getUniqueValue() +
+                ': ' +
+                ex.toString()
+            );
+
+            return '';
+        }
+    },
+
+    /*
+     * type = to / cc / bcc
+     */
+    getRecipients: function(emailTemplate, type, record) {
+        var emails = [];
+
+        emails = emails.concat(this.getUserEmails(emailTemplate.getValue(type + '_users')));
+        emails = emails.concat(this.getGroupEmails(emailTemplate.getValue(type + '_groups')));
+        emails = emails.concat(this.getOtherEmails(emailTemplate.getValue(type + '_other_recipients')));
+
+        if (this.isTrue(emailTemplate.getValue('evaluate_' + type + '_recipients_using_script'))) {
+            emails = emails.concat(this.evaluateRecipientScript(emailTemplate, type, record));
+        }
+
+        return this.uniqueEmails(emails);
+    },
+
+    /*
+     * Get emails from active sys_user records.
+     * Works with both Reference and List fields.
+     */
+    getUserEmails: function(userIds) {
+        var emails = [];
+
+        if (!userIds) {
+            return emails;
+        }
+
+        var user = new GlideRecord('sys_user');
+        user.addQuery('sys_id', 'IN', userIds);
+        user.addQuery('active', true);
+        user.query();
+
+        while (user.next()) {
+            var address = user.getValue('email');
+
+            if (this.isValidEmailValue(address)) {
+                emails.push(address);
+            }
+        }
+
+        return emails;
+    },
+
+    /*
+     * Get group email and active group member emails.
+     */
+    getGroupEmails: function(groupIds) {
+        var emails = [];
+
+        if (!groupIds) {
+            return emails;
+        }
+
+        var group = new GlideRecord('sys_user_group');
+        group.addQuery('sys_id', 'IN', groupIds);
+        group.query();
+
+        while (group.next()) {
+            var groupEmail = group.getValue('email');
+
+            if (this.isValidEmailValue(groupEmail)) {
+                emails.push(groupEmail);
+            }
+
+            var member = new GlideRecord('sys_user_grmember');
+            member.addQuery('group', group.getUniqueValue());
+            member.addQuery('user.active', true);
+            member.query();
+
+            while (member.next()) {
+                var address = member.user.email + '';
+
+                if (this.isValidEmailValue(address)) {
+                    emails.push(address);
+                }
+            }
+        }
+
+        return emails;
+    },
+
+    /*
+     * Other recipients as comma-separated emails.
+     */
+    getOtherEmails: function(value) {
+        var emails = [];
+
+        if (!value) {
+            return emails;
+        }
+
+        var parts = value.split(',');
+
+        for (var i = 0; i < parts.length; i++) {
+            var email = parts[i].trim();
+
+            if (this.isValidEmailValue(email)) {
+                emails.push(email);
+            }
+        }
+
+        return emails;
+    },
+
+    /*
+     * Recipient script should set result.
+     *
+     * Example:
+     * result = ['abc@test.com', current.caller_id.email + ''];
+     *
+     * or:
+     * result = current.assigned_to.email + '';
+     */
+    evaluateRecipientScript: function(emailTemplate, type, record) {
+        try {
+            var fieldName = 'script_for_evaluating_' + type + '_recipients';
+
+            var evaluator = new GlideScopedEvaluator();
+
+            evaluator.putVariable('current', record);
+            evaluator.putVariable('email_template', emailTemplate);
+            evaluator.putVariable('result', []);
+
+            evaluator.evaluateScript(emailTemplate, fieldName);
+
+            var result = evaluator.getVariable('result');
+
+            if (!result) {
+                return [];
+            }
+
+            if (typeof result == 'string') {
+                return result.split(',');
+            }
+
+            return result;
+
+        } catch (ex) {
+            gs.error(
+                'DocuMate recipient script failed for ' +
+                type +
+                ' recipients. Email template: ' +
+                emailTemplate.getUniqueValue() +
+                '. Error: ' +
+                ex.toString()
+            );
+
+            return [];
+        }
+    },
+
+    uniqueEmails: function(list) {
+        var result = [];
+        var found = {};
+
+        for (var i = 0; i < list.length; i++) {
+            var email = (list[i] || '').toString().trim();
+
+            if (!email) {
+                continue;
+            }
+
+            var key = email.toLowerCase();
+
+            if (!found[key]) {
+                found[key] = true;
+                result.push(email);
+            }
+        }
+
+        return result;
+    },
+
+    removeAddresses: function(sourceList, removeList) {
+        var result = [];
+        var remove = {};
+
+        for (var i = 0; i < removeList.length; i++) {
+            remove[(removeList[i] || '').toString().trim().toLowerCase()] = true;
+        }
+
+        for (var j = 0; j < sourceList.length; j++) {
+            var email = (sourceList[j] || '').toString().trim();
+            var key = email.toLowerCase();
+
+            if (email && !remove[key]) {
+                result.push(email);
+            }
+        }
+
+        return this.uniqueEmails(result);
+    },
+
+    isValidEmailValue: function(value) {
+        if (value === null || value === undefined) {
+            return false;
+        }
+
+        value = value.toString().trim();
+
+        return value !== '' && value !== 'undefined' && value !== 'null';
+    },
+
+    truncate: function(value, maxLength) {
+        if (value === null || value === undefined) {
+            return '';
+        }
+
+        value = value.toString();
+
+        if (!maxLength || value.length <= maxLength) {
+            return value;
+        }
+
+        return value.substring(0, maxLength) + '\n...[truncated]';
+    },
+
+    decodeHTML: function(value) {
+        if (value === null || value === undefined) {
+            return '';
+        }
+
+        value = value.toString();
+
+        return value
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#034;/g, '"')
+            .replace(/&#34;/g, '"')
+            .replace(/&#039;/g, "'")
+            .replace(/&#39;/g, "'")
+            .replace(/&apos;/g, "'")
+            .replace(/&amp;/g, '&');
+    },
+
+    escapeHTML: function(value) {
+        if (value === null || value === undefined) {
+            return '';
+        }
+
+        value = value.toString();
+
+        return value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    },
+
+    isTrue: function(value) {
+        return value == true || value == 'true' || value == '1';
+    },
+
+    type: 'emailUtils'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-11-16 02:38:56</sys_created_on>
+        <sys_id>315457cec3e8135076cbbecdd401319d</sys_id>
+        <sys_mod_count>5</sys_mod_count>
+        <sys_name>emailUtils</sys_name>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_update_name>sys_script_include_315457cec3e8135076cbbecdd401319d</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-11-17 01:19:41</sys_updated_on>
+    </sys_script_include>
+</record_update>

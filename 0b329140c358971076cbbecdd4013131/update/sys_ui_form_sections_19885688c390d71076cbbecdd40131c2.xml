@@ -14,34 +14,6 @@
             <sys_updated_by>admin</sys_updated_by>
             <sys_updated_on>2026-10-28 06:45:31</sys_updated_on>
         </sys_ui_form_section>
-        <sys_ui_form_section action="INSERT_OR_UPDATE">
-            <position>1</position>
-            <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2026-10-31 09:07:11</sys_created_on>
-            <sys_domain>global</sys_domain>
-            <sys_domain_path>/</sys_domain_path>
-            <sys_id>7db5d6c1c318df1076cbbecdd4013169</sys_id>
-            <sys_mod_count>0</sys_mod_count>
-            <sys_overrides/>
-            <sys_ui_form display_value="x_2162040_documate_field_mapping" name="x_2162040_documate_field_mapping" sys_domain="global" view="Default view">19885688c390d71076cbbecdd40131c2</sys_ui_form>
-            <sys_ui_section caption="Advanced Mapping" display_value="Advanced Mapping" name="x_2162040_documate_field_mapping" sys_domain="global" view="Default view">fdb5d6c1c318df1076cbbecdd4013163</sys_ui_section>
-            <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2026-10-31 09:07:11</sys_updated_on>
-        </sys_ui_form_section>
-        <sys_ui_form_section action="INSERT_OR_UPDATE">
-            <position>2</position>
-            <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2026-10-31 09:07:11</sys_created_on>
-            <sys_domain>global</sys_domain>
-            <sys_domain_path>/</sys_domain_path>
-            <sys_id>bdb5d6c1c318df1076cbbecdd4013170</sys_id>
-            <sys_mod_count>0</sys_mod_count>
-            <sys_overrides/>
-            <sys_ui_form display_value="x_2162040_documate_field_mapping" name="x_2162040_documate_field_mapping" sys_domain="global" view="Default view">19885688c390d71076cbbecdd40131c2</sys_ui_form>
-            <sys_ui_section caption="Sub Template Mapping" display_value="Sub Template Mapping" name="x_2162040_documate_field_mapping" sys_domain="global" view="Default view">b1b5d6c1c318df1076cbbecdd4013167</sys_ui_section>
-            <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2026-10-31 09:07:11</sys_updated_on>
-        </sys_ui_form_section>
         <sys_ui_form action="INSERT_OR_UPDATE">
             <name>x_2162040_documate_field_mapping</name>
             <roles/>

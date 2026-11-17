@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_form_sections form_id="1f118186c3a8df1076cbbecdd4013104" sys_domain="global" table="x_2162040_documate_email" version="3">
+        <sys_ui_form_section action="INSERT_OR_UPDATE">
+            <position>0</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-15 15:47:11</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>6b118186c3a8df1076cbbecdd401310b</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_overrides/>
+            <sys_ui_form display_value="x_2162040_documate_email" name="x_2162040_documate_email" sys_domain="global" view="Default view">1f118186c3a8df1076cbbecdd4013104</sys_ui_form>
+            <sys_ui_section caption="NULL" display_value="" name="x_2162040_documate_email" sys_domain="global" view="Default view">6146a0b5c3285f1076cbbecdd401319c</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-15 15:47:11</sys_updated_on>
+        </sys_ui_form_section>
+        <sys_ui_form_section action="INSERT_OR_UPDATE">
+            <position>1</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-15 15:47:11</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>23118186c3a8df1076cbbecdd401310d</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_overrides/>
+            <sys_ui_form display_value="x_2162040_documate_email" name="x_2162040_documate_email" sys_domain="global" view="Default view">1f118186c3a8df1076cbbecdd4013104</sys_ui_form>
+            <sys_ui_section caption="To" display_value="To" name="x_2162040_documate_email" sys_domain="global" view="Default view">17114186c3a8df1076cbbecdd4013186</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-15 15:47:11</sys_updated_on>
+        </sys_ui_form_section>
+        <sys_ui_form_section action="INSERT_OR_UPDATE">
+            <position>2</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-15 15:51:51</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>7f22410ac3a8df1076cbbecdd40131f5</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_overrides/>
+            <sys_ui_form display_value="x_2162040_documate_email" name="x_2162040_documate_email" sys_domain="global" view="Default view">1f118186c3a8df1076cbbecdd4013104</sys_ui_form>
+            <sys_ui_section caption="Cc" display_value="Cc" name="x_2162040_documate_email" sys_domain="global" view="Default view">7722410ac3a8df1076cbbecdd4013198</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-15 15:51:51</sys_updated_on>
+        </sys_ui_form_section>
+        <sys_ui_form_section action="INSERT_OR_UPDATE">
+            <position>3</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-15 15:51:51</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>b322410ac3a8df1076cbbecdd40131fd</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_overrides/>
+            <sys_ui_form display_value="x_2162040_documate_email" name="x_2162040_documate_email" sys_domain="global" view="Default view">1f118186c3a8df1076cbbecdd4013104</sys_ui_form>
+            <sys_ui_section caption="Bcc" display_value="Bcc" name="x_2162040_documate_email" sys_domain="global" view="Default view">3322410ac3a8df1076cbbecdd40131f1</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-15 15:51:51</sys_updated_on>
+        </sys_ui_form_section>
+        <sys_ui_form action="INSERT_OR_UPDATE">
+            <name>x_2162040_documate_email</name>
+            <roles/>
+            <sys_class_name>sys_ui_form</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-15 15:47:11</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>1f118186c3a8df1076cbbecdd4013104</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_2162040_documate_email</sys_name>
+            <sys_overrides/>
+            <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+            <sys_update_name>sys_ui_form_sections_1f118186c3a8df1076cbbecdd4013104</sys_update_name>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-15 15:47:11</sys_updated_on>
+            <sys_user/>
+            <view display_value="Default view" name="NULL">Default view</view>
+            <view_name/>
+        </sys_ui_form>
+    </sys_ui_form_sections>
+</record_update>

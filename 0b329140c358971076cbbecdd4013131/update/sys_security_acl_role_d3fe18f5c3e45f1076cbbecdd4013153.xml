@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_security_acl_role">
+    <sys_security_acl_role action="INSERT_OR_UPDATE">
+        <sys_class_name>sys_security_acl_role</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-11-14 18:39:36</sys_created_on>
+        <sys_id>d3fe18f5c3e45f1076cbbecdd4013153</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>x_2162040_documate_email.x_2162040_documate.email_user</sys_name>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_security_acl display_value="x_2162040_documate_email">17fe18f5c3e45f1076cbbecdd401314c</sys_security_acl>
+        <sys_update_name>sys_security_acl_role_d3fe18f5c3e45f1076cbbecdd4013153</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-11-14 18:39:36</sys_updated_on>
+        <sys_user_role display_value="x_2162040_documate.email_user" name="x_2162040_documate.email_user">3afed4f5c3e45f1076cbbecdd401318b</sys_user_role>
+    </sys_security_acl_role>
+</record_update>

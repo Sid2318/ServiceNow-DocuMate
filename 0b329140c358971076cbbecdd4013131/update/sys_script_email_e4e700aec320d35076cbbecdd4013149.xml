@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_email">
+    <sys_script_email action="INSERT_OR_UPDATE">
+        <name>x_2162040_documate_set_email_properties</name>
+        <new_lines_to_html>false</new_lines_to_html>
+        <script><![CDATA[(function runMailScript(current, template, email, email_action, event) {
+    var payload = {};
+
+    try {
+        payload = JSON.parse(event.parm2 || '{}');
+    } catch (ex) {
+        gs.error('DocuMate mail script failed to parse event.parm2: ' + ex.toString());
+        payload = {};
+    }
+
+    payload.subject = payload.subject || 'DocuMate Document';
+    payload.body = payload.body || '';
+
+    payload.to = payload.to || [];
+    payload.cc = payload.cc || [];
+    payload.bcc = payload.bcc || [];
+
+    email.setSubject(payload.subject);
+    template.print(payload.body);
+
+    var i;
+
+    for (i = 0; i < payload.to.length; i++) {
+        if (payload.to[i]) {
+            email.addAddress('to', payload.to[i], payload.to[i]);
+        }
+    }
+
+    for (i = 0; i < payload.cc.length; i++) {
+        if (payload.cc[i]) {
+            email.addAddress('cc', payload.cc[i], payload.cc[i]);
+        }
+    }
+
+    for (i = 0; i < payload.bcc.length; i++) {
+        if (payload.bcc[i]) {
+            email.addAddress('bcc', payload.bcc[i], payload.bcc[i]);
+        }
+    }
+
+    /*
+     * Manually copy attachments from DocuMate Instance to sys_email.
+     * This is needed because Include Attachments may not copy in this setup.
+     */
+    try {
+        var emailSysId = '';
+
+        if (email && email.getGlideRecord) {
+            var emailGr = email.getGlideRecord();
+            if (emailGr && emailGr.isValidRecord()) {
+                emailSysId = emailGr.getUniqueValue();
+            }
+        }
+
+        if (!emailSysId && email && email.sys_id) {
+            emailSysId = email.sys_id + '';
+        }
+
+        if (emailSysId && current && current.isValidRecord()) {
+            var sourceAtt = new GlideRecord('sys_attachment');
+            sourceAtt.addQuery('table_name', current.getTableName());
+            sourceAtt.addQuery('table_sys_id', current.getUniqueValue());
+            sourceAtt.query();
+
+            var gsa = new GlideSysAttachment();
+
+            while (sourceAtt.next()) {
+                var content = gsa.getContent(sourceAtt);
+
+                if (content !== null && content !== undefined) {
+                    var emailGr2 = new GlideRecord('sys_email');
+
+                    if (emailGr2.get(emailSysId)) {
+                        gsa.write(
+                            emailGr2,
+                            sourceAtt.getValue('file_name'),
+                            sourceAtt.getValue('content_type'),
+                            content
+                        );
+                    }
+                }
+            }
+        } else {
+            gs.warn('DocuMate mail script could not determine sys_email sys_id for attachment copy.');
+        }
+
+    } catch (attachEx) {
+        gs.error('DocuMate mail script attachment copy failed: ' + attachEx.toString());
+    }
+
+})(current, template, email, email_action, event);]]></script>
+        <sys_class_name>sys_script_email</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-11-17 00:55:37</sys_created_on>
+        <sys_id>e4e700aec320d35076cbbecdd4013149</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>x_2162040_documate_set_email_properties</sys_name>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_update_name>sys_script_email_e4e700aec320d35076cbbecdd4013149</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-11-17 01:53:47</sys_updated_on>
+    </sys_script_email>
+</record_update>

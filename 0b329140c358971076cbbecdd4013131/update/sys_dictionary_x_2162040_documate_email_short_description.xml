@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update>
-    <sys_dictionary action="INSERT_OR_UPDATE" element="field_of_sub_template" table="x_2162040_documate_field_mapping">
+    <sys_dictionary action="INSERT_OR_UPDATE" element="short_description" table="x_2162040_documate_email">
         <active>true</active>
         <array>false</array>
         <attributes/>
@@ -13,10 +13,10 @@
         <choice/>
         <choice_field/>
         <choice_table/>
-        <column_label>Field of Sub template</column_label>
+        <column_label>Short Description</column_label>
         <comments/>
         <create_roles/>
-        <default_value>false</default_value>
+        <default_value/>
         <defaultsort/>
         <delete_roles/>
         <dependent/>
@@ -26,20 +26,20 @@
         <dynamic_creation_script/>
         <dynamic_default_value/>
         <dynamic_ref_qual/>
-        <element>field_of_sub_template</element>
+        <element>short_description</element>
         <element_reference>false</element_reference>
         <foreign_database/>
         <formula/>
         <function_definition/>
         <function_field>false</function_field>
-        <internal_type display_value="">boolean</internal_type>
+        <internal_type display_value="String">string</internal_type>
         <mandatory>false</mandatory>
-        <max_length>40</max_length>
-        <name>x_2162040_documate_field_mapping</name>
+        <max_length>100</max_length>
+        <name>x_2162040_documate_email</name>
         <next_element/>
         <primary>false</primary>
-        <read_only>true</read_only>
-        <read_only_option>instance_configured</read_only_option>
+        <read_only>false</read_only>
+        <read_only_option/>
         <read_roles/>
         <reference/>
         <reference_cascade_rule/>
@@ -52,14 +52,14 @@
         <staged>false</staged>
         <sys_class_name>sys_dictionary</sys_class_name>
         <sys_created_by>admin</sys_created_by>
-        <sys_created_on>2026-10-31 09:01:25</sys_created_on>
-        <sys_name>Field of Sub template</sys_name>
+        <sys_created_on>2026-11-14 18:41:23</sys_created_on>
+        <sys_name>Short Description</sys_name>
         <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
         <sys_policy/>
         <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
-        <sys_update_name>sys_dictionary_x_2162040_documate_field_mapping_field_of_sub_template</sys_update_name>
+        <sys_update_name>sys_dictionary_x_2162040_documate_email_short_description</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2026-10-31 09:07:10</sys_updated_on>
+        <sys_updated_on>2026-11-14 18:41:23</sys_updated_on>
         <table_reference>false</table_reference>
         <text_index>false</text_index>
         <unique>false</unique>
