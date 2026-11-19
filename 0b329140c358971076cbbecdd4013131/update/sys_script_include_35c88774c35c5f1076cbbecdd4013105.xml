@@ -9,8 +9,7 @@
         <mobile_callable>false</mobile_callable>
         <name>fieldMappingUtils</name>
         <sandbox_callable>false</sandbox_callable>
-        <script><![CDATA[var fieldMappingUtils = Class.create();
-fieldMappingUtils.prototype = {
+        <script><![CDATA[fieldMappingUtils.prototype = {
     initialize: function() {},
 
     tempRetrive: function(current) {
@@ -22,28 +21,34 @@ fieldMappingUtils.prototype = {
         var fields = this.extractFieldTokens(html);
         var subtemp = this.extractSubTempTokens(html);
 
-		//create mapping
-		this.createFieldMappings(current, fields,false);
-		this.createSubTemplates(current, subtemp);
+        //create mapping
+        this.createFieldMappings(current, fields, 'template');
+        this.createSubTemplates(current, subtemp);
     },
 
-	subtempRetrive: function(current) {
+    subtempRetrive: function(current) {
         //delete previous
-        var grfield = new GlideRecord('x_2162040_documate_field_mapping');
-        grfield.addQuery('sub_template', current.getUniqueValue());
-        grfield.query();
-        grfield.deleteMultiple();
+        this.deletePreviousSubtempFields(current);
 
         //extract new fields
         var html = current.getValue('html_template');
         var fields = this.extractFieldTokens(html);
 
-		//create mapping
-		this.createFieldMappings(current, fields,true);
+        //create mapping
+        this.createFieldMappings(current, fields, 'sub_template');
+    },
+
+    deletePreviousSubtempFields: function(current) {
+        var grfield = new GlideRecord('x_2162040_documate_field_mapping');
+        grfield.addQuery('mapping_context', 'sub_template');
+        grfield.addQuery('sub_template', current.getUniqueValue());
+        grfield.query();
+        grfield.deleteMultiple();
     },
 
     deletePrevious: function(current) {
         var grfield = new GlideRecord('x_2162040_documate_field_mapping');
+        grfield.addQuery('mapping_context', 'template');
         grfield.addQuery('template', current.getUniqueValue());
         grfield.query();
         grfield.deleteMultiple();
@@ -52,12 +57,23 @@ fieldMappingUtils.prototype = {
         var grSubtemp = new GlideRecord('x_2162040_documate_sub_template');
         grSubtemp.addQuery('template', current.getUniqueValue());
         grSubtemp.query();
-        grSubtemp.deleteMultiple();
+        while (grSubtemp.next()) {
+            this.deletePreviousSubtempFields(grSubtemp);
+            grSubtemp.deleteRecord();
+        }
+
+		// var grEmail = new GlideRecord('x_2162040_documate_email');
+		// grEmail.addQuery('template',current.getUniqueValue());
+		// grEmail.query();
+		// while(grEmail.next()){
+		// 	this.deleteEmailMappings(grEmail);
+		// 	grEmail.deleteRecord();
+		// }
     },
 
-    createFieldMappings: function(template, fields,isSubtemp) {
+    createFieldMappings: function(template, fields, context) {
         var templateSysId = template.getUniqueValue();
-		var tempTable = template.getValue('table');
+        var tempTable = template.getValue('table');
 
         for (var i = 0; i < fields.length; i++) {
             var token = fields[i];
@@ -65,16 +81,18 @@ fieldMappingUtils.prototype = {
             var fm = new GlideRecord('x_2162040_documate_field_mapping');
             fm.initialize();
 
-            fm.setValue('name',  token );
-			fm.setValue('table', tempTable );
-			fm.setValue('field_of_sub_template',  isSubtemp );
-			if(isSubtemp){
-				fm.setValue('template', template.getValue('template'));
-				fm.setValue('sub_template',  templateSysId );
-			}
-			else{
-				fm.setValue('template', templateSysId); //only template wali case
-			}
+            fm.setValue('name', token);
+            fm.setValue('table', tempTable);
+            fm.setValue('mapping_context', context);
+            if (context == 'sub_template') {
+                fm.setValue('sub_template', templateSysId);
+				fm.setValue('template',template.getValue('template'));
+            } else if (context == 'email_template') {
+                fm.setValue('email_template', templateSysId);
+				fm.setValue('template',template.getValue('template'));
+            } else {
+                fm.setValue('template', templateSysId);
+            }
 
             fm.insert();
         }
@@ -92,12 +110,34 @@ fieldMappingUtils.prototype = {
             st.initialize();
 
             st.setValue('template', templateSysId);
-            st.setValue('template_reference_field',  sectionName );
-			st.setValue('empty_message',"No Data");
+            st.setValue('template_reference_field', sectionName);
+            st.setValue('empty_message', "No Data");
 
             st.insert();
         }
+    },
 
+    emailRetrive: function(template) {
+        this.deleteEmailMappings(template);
+
+        var text = '';
+        text += template.getValue('mail_subject') || '';
+        text += '\n';
+        text += template.getValue('mail_body') || '';
+
+        var fields = this.extractFieldTokens(text);
+        this.createFieldMappings(template, fields, 'email_template');
+
+        gs.info('DocuMate: Created email field mappings count: ' + fields.length);
+    },
+
+    deleteEmailMappings: function(current) {
+        var fm = new GlideRecord('x_2162040_documate_field_mapping');
+        fm.addQuery('mapping_context', 'email_template');
+        fm.addQuery('email_template', current.getUniqueValue());
+        fm.query();
+
+        fm.deleteMultiple();
     },
 
     extractFieldTokens: function(text) {
@@ -154,13 +194,13 @@ fieldMappingUtils.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-10-30 18:53:01</sys_created_on>
         <sys_id>35c88774c35c5f1076cbbecdd4013105</sys_id>
-        <sys_mod_count>6</sys_mod_count>
+        <sys_mod_count>7</sys_mod_count>
         <sys_name>fieldMappingUtils</sys_name>
         <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
         <sys_update_name>sys_script_include_35c88774c35c5f1076cbbecdd4013105</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2026-11-10 06:22:36</sys_updated_on>
+        <sys_updated_on>2026-11-18 13:21:27</sys_updated_on>
     </sys_script_include>
 </record_update>

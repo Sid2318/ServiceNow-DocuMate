@@ -42,6 +42,20 @@
             <sys_updated_by>admin</sys_updated_by>
             <sys_updated_on>2026-11-08 12:30:59</sys_updated_on>
         </sys_ui_form_section>
+        <sys_ui_form_section action="INSERT_OR_UPDATE">
+            <position>3</position>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-11-16 01:47:46</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>819acb0ec3a8135076cbbecdd40131a3</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_overrides/>
+            <sys_ui_form display_value="x_2162040_documate_templates" name="x_2162040_documate_templates" sys_domain="global" view="Default view">7b995e0cc390d71076cbbecdd40131a5</sys_ui_form>
+            <sys_ui_section caption="Notify" display_value="Notify" name="x_2162040_documate_templates" sys_domain="global" view="Default view">459acb0ec3a8135076cbbecdd401319d</sys_ui_section>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-11-16 01:47:46</sys_updated_on>
+        </sys_ui_form_section>
         <sys_ui_form action="INSERT_OR_UPDATE">
             <name>x_2162040_documate_templates</name>
             <roles/>

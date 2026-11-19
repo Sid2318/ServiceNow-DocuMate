@@ -9,8 +9,7 @@
         <mobile_callable>false</mobile_callable>
         <name>TemplateFlow</name>
         <sandbox_callable>false</sandbox_callable>
-        <script><![CDATA[var TemplateFlow = Class.create();
-TemplateFlow.prototype = {
+        <script><![CDATA[TemplateFlow.prototype = {
     initialize: function() {},
 
     // Button visibility
@@ -69,15 +68,20 @@ TemplateFlow.prototype = {
             errors.push('Script for Condition is required when Evaluate Condition Using Script is checked.');
         }
 
-        //validate if Fields done
+        // Validate main template field mappings
         var fm = new GlideRecord('x_2162040_documate_field_mapping');
         fm.addQuery('template', template.getUniqueValue());
-        fm.addQuery('field_of_sub_template', false);
+        fm.addQuery('mapping_context', 'template');
         fm.query();
 
         var fmcnt = 0;
+
         while (fm.next()) {
-            if ((fm.getValue('evaluate_value_using_script') == true && gs.nil(fm.getValue('script_value'))) || (fm.getValue('evaluate_value_using_script') == false && gs.nil(fm.getValue('field')))) {
+            var usesScript = fm.getValue('evaluate_value_using_script') == '1' ||
+                fm.getValue('evaluate_value_using_script') == 'true';
+
+            if ((usesScript && gs.nil(fm.getValue('script_value'))) ||
+                (!usesScript && gs.nil(fm.getValue('field')))) {
                 fmcnt++;
             }
         }
@@ -86,12 +90,13 @@ TemplateFlow.prototype = {
             errors.push('Field Mapping of ' + fmcnt + ' Template Fields is Required.');
         }
 
-        //validate if Subtemplates done
+        // Validate subtemplates completion
         var subtemp = new GlideRecord('x_2162040_documate_sub_template');
         subtemp.addQuery('template', template.getUniqueValue());
         subtemp.query();
 
         var subcnt = 0;
+
         while (subtemp.next()) {
             if (subtemp.getValue('state') != 'complete') {
                 subcnt++;
@@ -100,6 +105,62 @@ TemplateFlow.prototype = {
 
         if (subcnt > 0) {
             errors.push('Completion State of ' + subcnt + ' Sub Templates is Required.');
+        }
+
+        // Validate email templates whenever Send Email is checked
+        if (template.getValue('send_email') == '1' || template.getValue('send_email') == 'true') {
+            var email = new GlideRecord('x_2162040_documate_email');
+            email.addQuery('template', template.getUniqueValue());
+            email.query();
+
+            var emailCount = 0;
+            var invalidEmailCount = 0;
+            var invalidEmailMappingCount = 0;
+
+            while (email.next()) {
+                emailCount++;
+
+                if (gs.nil(email.getValue('mail_subject')) || gs.nil(email.getValue('mail_body'))) {
+                    invalidEmailCount++;
+                }
+
+                var hasTo = !gs.nil(email.getValue('to_users')) ||
+                    !gs.nil(email.getValue('to_groups')) ||
+                    !gs.nil(email.getValue('to_other_recipients')) ||
+                    email.getValue('evaluate_to_recipients_using_script') == '1' ||
+                    email.getValue('evaluate_to_recipients_using_script') == 'true';
+
+                if (!hasTo) {
+                    errors.push('Email Template "' + email.getValue('name') + '" requires at least one To recipient source.');
+                }
+
+                var efm = new GlideRecord('x_2162040_documate_field_mapping');
+                efm.addQuery('mapping_context', 'email_template');
+                efm.addQuery('email_template', email.getUniqueValue());
+                efm.query();
+
+                while (efm.next()) {
+                    var emailUsesScript = efm.getValue('evaluate_value_using_script') == '1' ||
+                        efm.getValue('evaluate_value_using_script') == 'true';
+
+                    if ((emailUsesScript && gs.nil(efm.getValue('script_value'))) ||
+                        (!emailUsesScript && gs.nil(efm.getValue('field')))) {
+                        invalidEmailMappingCount++;
+                    }
+                }
+            }
+
+            if (emailCount === 0) {
+                errors.push('At least one Email Template is required when Send Email is checked.');
+            }
+
+            if (invalidEmailCount > 0) {
+                errors.push(invalidEmailCount + ' Email Template(s) are missing Mail Subject or Mail Body.');
+            }
+
+            if (invalidEmailMappingCount > 0) {
+                errors.push('Field Mapping of ' + invalidEmailMappingCount + ' Email Template Fields is required.');
+            }
         }
 
         if (errors.length > 0) {
@@ -220,13 +281,13 @@ TemplateFlow.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-11-05 14:41:51</sys_created_on>
         <sys_id>38715576c3d4571076cbbecdd40131f4</sys_id>
-        <sys_mod_count>12</sys_mod_count>
+        <sys_mod_count>13</sys_mod_count>
         <sys_name>TemplateFlow</sys_name>
         <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
         <sys_update_name>sys_script_include_38715576c3d4571076cbbecdd40131f4</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2026-11-10 06:22:14</sys_updated_on>
+        <sys_updated_on>2026-11-18 13:23:06</sys_updated_on>
     </sys_script_include>
 </record_update>

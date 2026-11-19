@@ -33,6 +33,7 @@
             </choice>
         </element>
         <element label="Business Rule" max_length="32" name="business_rule" read_only="true" read_only_option="instance_configured" reference="sys_script" type="reference"/>
+        <element label="Send Email" max_length="255" name="send_email" type="boolean"/>
         <element dependent="table" dependent_on_field="table" label="Condition" max_length="4000" name="condition" type="conditions" use_dependent_field="true"/>
         <element label="Name" mandatory="true" max_length="255" name="name" type="string"/>
         <element label="Table" mandatory="true" max_length="80" name="table" type="table_name"/>

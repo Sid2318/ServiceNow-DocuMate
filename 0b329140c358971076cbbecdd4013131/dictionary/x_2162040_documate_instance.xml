@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?><database>
     <element db_object_id="ae4f3c98c3181b1076cbbecdd4013137" label="Instance" max_length="40" name="x_2162040_documate_instance" type="collection">
+        <element choice="1" label="Email Status" max_length="40" name="email_status" read_only="true" read_only_option="display_read_only" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Queued" value="queued"/>
+                <element inactive_on_update="false" label="None" value="none"/>
+                <element inactive_on_update="false" label="Partial" value="partial"/>
+                <element inactive_on_update="false" label="Skipped" value="skipped"/>
+                <element inactive_on_update="false" label="Failed" value="failed"/>
+            </choice>
+        </element>
         <element label="Attachment Sys ID" max_length="32" name="attachment_sys_id" read_only="true" read_only_option="instance_configured" type="string"/>
         <element choice="1" label="Status" max_length="40" name="status" read_only="true" read_only_option="instance_configured" type="choice">
             <choice>
@@ -9,6 +18,7 @@
             </choice>
         </element>
         <element attributes="ignore_filter_on_new=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" read_only="true" read_only_option="instance_configured" type="string"/>
+        <element label="Email log" max_length="800" name="email_log" read_only="true" read_only_option="display_read_only" type="string"/>
         <element label="Template" max_length="32" name="template" read_only="true" read_only_option="instance_configured" reference="x_2162040_documate_templates" type="reference"/>
         <element label="Record Sys ID" max_length="32" name="record_sys_id" read_only="true" read_only_option="instance_configured" type="string"/>
         <element label="Message" max_length="100" name="message" read_only="true" read_only_option="instance_configured" type="string"/>

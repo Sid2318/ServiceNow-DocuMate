@@ -1,17 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?><database>
     <element db_object_id="ca4a5504c398971076cbbecdd40131d1" label="Field Mapping" max_length="40" name="x_2162040_documate_field_mapping" type="collection">
-        <element label="Field of Sub template" max_length="40" name="field_of_sub_template" read_only="true" read_only_option="instance_configured" type="boolean"/>
         <element label="Name" max_length="200" name="name" read_only="true" read_only_option="instance_configured" type="string"/>
         <element label="Table" max_length="80" name="table" read_only="true" read_only_option="instance_configured" type="table_name"/>
+        <element label="Mapping Context" max_length="40" name="mapping_context" read_only="true" read_only_option="display_read_only" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Template" sequence="1" value="template"/>
+                <element inactive_on_update="false" label="Sub Template" sequence="2" value="sub_template"/>
+                <element inactive_on_update="false" label="Email Template" sequence="0" value="email_template"/>
+            </choice>
+        </element>
         <element label="Template" max_length="32" name="template" read_only="true" read_only_option="instance_configured" reference="x_2162040_documate_templates" type="reference"/>
         <element attributes="allow_null=true,allow_references=true,​allow_references=true,​edge_encryption_enabled=true" dependent="table" dependent_on_field="table" label="Field" max_length="80" name="field" type="field_name" use_dependent_field="true"/>
         <element label="Evaluate Value Using Script" max_length="40" name="evaluate_value_using_script" type="boolean"/>
         <element default="// Set result to the value that should replace this placeholder.&#13;&#10;// Available variables:&#13;&#10;// current    = current source record&#13;&#10;// parent     = parent/main record for sub-template mappings&#13;&#10;// context    = Template or Sub Template configuration record&#13;&#10;// result     = final value inserted into document" label="Script Value" max_length="8000" name="script_value" type="script"/>
+        <element label="Email Template" max_length="32" name="email_template" read_only="true" read_only_option="display_read_only" reference="x_2162040_documate_email" type="reference"/>
         <element label="Sub Template" max_length="32" name="sub_template" read_only="true" read_only_option="instance_configured" reference="x_2162040_documate_sub_template" type="reference"/>
         <index name="index">
-            <element name="sub_template"/>
+            <element name="email_template"/>
         </index>
         <index name="index2">
+            <element name="sub_template"/>
+        </index>
+        <index name="index3">
             <element name="template"/>
         </index>
     </element>

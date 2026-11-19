@@ -9,7 +9,7 @@
         <mobile_callable>false</mobile_callable>
         <name>CoreEngine</name>
         <sandbox_callable>false</sandbox_callable>
-        <script><![CDATA[var CoreEngine = Class.create();
+        <script><![CDATA[CoreEngine = Class.create();
 CoreEngine.prototype = {
     initialize: function() {
         this.instanceUtils = new x_2162040_documate.instanceUtils();
@@ -162,13 +162,58 @@ CoreEngine.prototype = {
 
             var fileName = this.getFileName(template, record);
 
+            // 1. Create generated document attachment on source record
             var attachmentSysId = this.createDocAttachment(record, finalHtml, fileName);
 
-            this.instanceUtils.createSuccess(template, record, attachmentSysId);
+            // 2. Create DocuMate instance row immediately after document creation
+            var instanceSysId = this.instanceUtils.createSuccess(template, record, attachmentSysId);
+
+            // 3. Email step must not fail document generation
+            var emailResult = {
+                queued: 0,
+                skipped: 0,
+                failed: 0,
+                status: 'none',
+                error: ''
+            };
+
+            if (this.isTrue(template.getValue('send_email'))) {
+                try {
+                    emailResult = new x_2162040_documate.emailUtils().sendEmailsForTemplate(
+                        template,
+                        record,
+                        attachmentSysId,
+                        instanceSysId
+                    );
+                } catch (emailEx) {
+                    emailResult = {
+                        queued: 0,
+                        skipped: 0,
+                        failed: 1,
+                        status: 'failed',
+                        error: emailEx.toString()
+                    };
+
+                    gs.error(
+                        'DocuMate email step failed after document generation. Template=' +
+                        template.getUniqueValue() +
+                        ', record=' +
+                        record.getUniqueValue() +
+                        ', instance=' +
+                        instanceSysId +
+                        ', error=' +
+                        emailEx.toString()
+                    );
+
+                    this.updateInstanceEmailFailure(instanceSysId, emailEx.toString());
+                }
+            }
 
             return {
                 status: 'success',
-                attachment_sys_id: attachmentSysId
+                attachment_sys_id: attachmentSysId,
+                instance_sys_id: instanceSysId,
+                email: emailResult
             };
 
         } catch (ex) {
@@ -271,8 +316,8 @@ CoreEngine.prototype = {
         }
 
         // Avoid duplicate .doc.doc
-        if (fileName.toLowerCase().slice(-4) != '.doc') {
-            fileName += '.doc';
+        if (fileName.toLowerCase().slice(-5) != '.docx') {
+            fileName += '.docx';
         }
 
         return fileName;
@@ -288,7 +333,7 @@ CoreEngine.prototype = {
     replaceMainFieldMappings: function(template, html, record) {
         var fm = new GlideRecord('x_2162040_documate_field_mapping');
         fm.addQuery('template', template.getUniqueValue());
-        fm.addQuery('field_of_sub_template', false);
+        fm.addQuery('mapping_context', 'template');
         fm.query();
 
         while (fm.next()) {
@@ -496,6 +541,7 @@ CoreEngine.prototype = {
     replaceSubTemplateFieldMappings: function(subTemplate, html, currentRecord, parentRecord, rowNumber) {
         var fm = new GlideRecord('x_2162040_documate_field_mapping');
         fm.addQuery('sub_template', subTemplate.getUniqueValue());
+        fm.addQuery('mapping_context', 'sub_template');
         fm.query();
 
         while (fm.next()) {
@@ -506,7 +552,7 @@ CoreEngine.prototype = {
             }
 
             var value = this.getMappingValue(fm, currentRecord, parentRecord, subTemplate, rowNumber);
-                value = this.escapeHTML(value);
+            value = this.escapeHTML(value);
 
             html = html.split('${' + name + '}').join(value);
         }
@@ -528,6 +574,27 @@ CoreEngine.prototype = {
         }
 
         return currentRecord.getDisplayValue(fieldName);
+    },
+
+    updateInstanceEmailFailure: function(instanceSysId, errorMessage) {
+        if (!instanceSysId) {
+            return;
+        }
+
+        var inst = new GlideRecord('x_2162040_documate_instance');
+
+        if (!inst.get(instanceSysId)) {
+            return;
+        }
+
+        inst.setValue('email_status', 'failed');
+        var log = '';
+        log += 'Email processing failed after document generation.\n';
+        log += 'Time: ' + new GlideDateTime().getDisplayValue() + '\n';
+        log += 'Error: ' + errorMessage;
+        inst.setValue('email_log', log);
+
+        inst.update();
     },
 
     /*
@@ -712,13 +779,13 @@ CoreEngine.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-10-31 15:40:34</sys_created_on>
         <sys_id>1e9f2b01c314135076cbbecdd4013131</sys_id>
-        <sys_mod_count>17</sys_mod_count>
+        <sys_mod_count>18</sys_mod_count>
         <sys_name>CoreEngine</sys_name>
         <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
         <sys_update_name>sys_script_include_1e9f2b01c314135076cbbecdd4013131</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2026-11-10 06:22:07</sys_updated_on>
+        <sys_updated_on>2026-11-18 13:23:29</sys_updated_on>
     </sys_script_include>
 </record_update>
