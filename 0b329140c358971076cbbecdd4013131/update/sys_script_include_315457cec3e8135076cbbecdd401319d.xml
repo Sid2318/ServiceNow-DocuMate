@@ -67,6 +67,15 @@ emailUtils.prototype = {
         logLines.push('Attachment copied to instance: ' + (copied ? 'yes' : 'no'));
         logLines.push('');
 
+        if (!copied) {
+            result.failed = 1;
+            result.status = 'failed';
+            logLines.push('Failed: generated document could not be attached to the DocuMate instance. No email queued.');
+            result.log = logLines.join('\n');
+            this.updateInstanceEmailInfo(instanceSysId, result.status, result.log);
+            return result;
+        }
+
         var emailTemplate = new GlideRecord('x_2162040_documate_email');
         emailTemplate.addQuery('template', template.getUniqueValue());
         emailTemplate.query();
@@ -152,17 +161,13 @@ emailUtils.prototype = {
         subject = this.decodeHTML(subject);
         body = this.decodeHTML(body);
 
-        // Subject should not HTML-escape replacement values.
         subject = this.replaceEmailFieldMappings(emailTemplate, subject, record, parentTemplate, false);
-
-        // Body should HTML-escape replacement values.
         body = this.replaceEmailFieldMappings(emailTemplate, body, record, parentTemplate, true);
 
         var to = this.getRecipients(emailTemplate, 'to', record);
         var cc = this.getRecipients(emailTemplate, 'cc', record);
         var bcc = this.getRecipients(emailTemplate, 'bcc', record);
 
-        // Cross-list dedupe:
         // To wins over Cc/Bcc, Cc wins over Bcc.
         cc = this.removeAddresses(cc, to);
         bcc = this.removeAddresses(bcc, to);
@@ -226,14 +231,14 @@ emailUtils.prototype = {
                 return false;
             }
 
-            sa.write(
+            var newAttachmentId = sa.write(
                 instance,
                 att.getValue('file_name'),
                 att.getValue('content_type'),
                 content
             );
 
-            return true;
+            return !!newAttachmentId;
 
         } catch (ex) {
             gs.error('DocuMate: Failed to copy attachment to instance. Error: ' + ex.toString());
@@ -378,10 +383,6 @@ emailUtils.prototype = {
         emails = emails.concat(this.getGroupEmails(emailTemplate.getValue(type + '_groups')));
         emails = emails.concat(this.getOtherEmails(emailTemplate.getValue(type + '_other_recipients')));
 
-        if (this.isTrue(emailTemplate.getValue('evaluate_' + type + '_recipients_using_script'))) {
-            emails = emails.concat(this.evaluateRecipientScript(emailTemplate, type, record));
-        }
-
         return this.uniqueEmails(emails);
     },
 
@@ -471,53 +472,6 @@ emailUtils.prototype = {
         }
 
         return emails;
-    },
-
-    /*
-     * Recipient script should set result.
-     *
-     * Example:
-     * result = ['abc@test.com', current.caller_id.email + ''];
-     *
-     * or:
-     * result = current.assigned_to.email + '';
-     */
-    evaluateRecipientScript: function(emailTemplate, type, record) {
-        try {
-            var fieldName = 'script_for_evaluating_' + type + '_recipients';
-
-            var evaluator = new GlideScopedEvaluator();
-
-            evaluator.putVariable('current', record);
-            evaluator.putVariable('email_template', emailTemplate);
-            evaluator.putVariable('result', []);
-
-            evaluator.evaluateScript(emailTemplate, fieldName);
-
-            var result = evaluator.getVariable('result');
-
-            if (!result) {
-                return [];
-            }
-
-            if (typeof result == 'string') {
-                return result.split(',');
-            }
-
-            return result;
-
-        } catch (ex) {
-            gs.error(
-                'DocuMate recipient script failed for ' +
-                type +
-                ' recipients. Email template: ' +
-                emailTemplate.getUniqueValue() +
-                '. Error: ' +
-                ex.toString()
-            );
-
-            return [];
-        }
     },
 
     uniqueEmails: function(list) {
@@ -630,13 +584,13 @@ emailUtils.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-11-16 02:38:56</sys_created_on>
         <sys_id>315457cec3e8135076cbbecdd401319d</sys_id>
-        <sys_mod_count>5</sys_mod_count>
+        <sys_mod_count>8</sys_mod_count>
         <sys_name>emailUtils</sys_name>
         <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
         <sys_update_name>sys_script_include_315457cec3e8135076cbbecdd401319d</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2026-11-17 01:19:41</sys_updated_on>
+        <sys_updated_on>2026-11-19 14:41:29</sys_updated_on>
     </sys_script_include>
 </record_update>

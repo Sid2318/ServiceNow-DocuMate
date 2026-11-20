@@ -142,23 +142,26 @@ CoreEngine.prototype = {
      * Generate final document.
      */
     generateDocument: function(template, record) {
+        var cutoff = new GlideDateTime();
+        cutoff.addSeconds(-600); // 10 minutes ago (UTC)
+
+        // skip if a successful document already exists for this template + record
+        var dup = new GlideRecord('x_2162040_documate_instance');
+        dup.addQuery('template', templateSysId);
+        dup.addQuery('record_sys_id', record.getUniqueValue());
+        dup.addQuery('status', 'success');
+        dup.addQuery('sys_created_on', '>', cutoff.getValue());
+        dup.setLimit(1);
+        dup.query();
+        if (dup.hasNext()) {
+            return {
+                status: 'skipped',
+                error: 'Document already generated.'
+            };
+        }
+
         try {
-            var html = template.getValue('html_template') || '';
-
-            if (!html) {
-                throw 'HTML Template is empty.';
-            }
-
-            html = this.decodeHTML(html);
-
-            // Replace normal ${field} values from main source record
-            html = this.replaceMainFieldMappings(template, html, record);
-
-            // Replace $${subtemplate_name} sections
-            html = this.renderSubTemplates(template, html, record);
-
-            // Wrap as Word-compatible HTML
-            var finalHtml = this.wrapAsWordHtml(html);
+            var finalHtml = this.buildHtml(template, record);
 
             var fileName = this.getFileName(template, record);
 
@@ -597,6 +600,45 @@ CoreEngine.prototype = {
         inst.update();
     },
 
+    //  no attachment, no instance row, no email
+    buildHtml: function(template, record, htmlOverride) {
+        var html = htmlOverride || template.getValue('html_template') || '';
+        if (!html) throw 'HTML Template is empty.';
+        html = this.decodeHTML(html);
+        html = this.replaceMainFieldMappings(template, html, record);
+        html = this.renderSubTemplates(template, html, record);
+        return this.wrapAsWordHtml(html);
+    },
+
+    //  used by the Preview button
+    previewDocument: function(templateSysId, recordSysId, htmlOverride) {
+        var template = new GlideRecord('x_2162040_documate_templates');
+        if (!template.get(templateSysId)) return {
+            success: false,
+            message: 'Template not found.'
+        };
+
+        var tableName = template.getValue('table');
+        var record = new GlideRecord(tableName);
+        if (!recordSysId || !record.get(recordSysId))
+            return {
+                success: false,
+                message: 'Pick a sample ' + tableName + ' record to preview.'
+            };
+
+        try {
+            return {
+                success: true,
+                html: this.buildHtml(template, record, htmlOverride)
+            };
+        } catch (e) {
+            return {
+                success: false,
+                message: 'Preview failed: ' + e
+            }; // surfaces ${bad_field} typos
+        }
+    },
+
     /*
      * Field Mapping script evaluation.
      *
@@ -779,13 +821,13 @@ CoreEngine.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-10-31 15:40:34</sys_created_on>
         <sys_id>1e9f2b01c314135076cbbecdd4013131</sys_id>
-        <sys_mod_count>18</sys_mod_count>
+        <sys_mod_count>20</sys_mod_count>
         <sys_name>CoreEngine</sys_name>
         <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
         <sys_update_name>sys_script_include_1e9f2b01c314135076cbbecdd4013131</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2026-11-18 13:23:29</sys_updated_on>
+        <sys_updated_on>2026-11-20 06:20:09</sys_updated_on>
     </sys_script_include>
 </record_update>
