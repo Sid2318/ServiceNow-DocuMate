@@ -147,7 +147,7 @@ CoreEngine.prototype = {
 
         // skip if a successful document already exists for this template + record
         var dup = new GlideRecord('x_2162040_documate_instance');
-        dup.addQuery('template', templateSysId);
+        dup.addQuery('template', template.getUniqueValue());
         dup.addQuery('record_sys_id', record.getUniqueValue());
         dup.addQuery('status', 'success');
         dup.addQuery('sys_created_on', '>', cutoff.getValue());
@@ -767,7 +767,13 @@ CoreEngine.prototype = {
             .replace(/&#039;/g, "'")
             .replace(/&#39;/g, "'")
             .replace(/&apos;/g, "'")
-            .replace(/&amp;/g, '&');
+            .replace(/&amp;/g, '&')
+            // The HTML editor URL-encodes placeholders inside href/src attributes,
+            // e.g. href="$%7bupdate_set_link%7d". Turn them back into ${update_set_link}
+            // (and $${section} for sub-template tokens) so they can be replaced.
+            .replace(/\$%7B([A-Za-z0-9_.]+)%7D/gi, function(match, name) {
+                return '${' + name + '}';
+            });
     },
 
     escapeHTML: function(value) {
@@ -821,13 +827,13 @@ CoreEngine.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-10-31 15:40:34</sys_created_on>
         <sys_id>1e9f2b01c314135076cbbecdd4013131</sys_id>
-        <sys_mod_count>20</sys_mod_count>
+        <sys_mod_count>22</sys_mod_count>
         <sys_name>CoreEngine</sys_name>
         <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
         <sys_update_name>sys_script_include_1e9f2b01c314135076cbbecdd4013131</sys_update_name>
-        <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2026-11-20 06:20:09</sys_updated_on>
+        <sys_updated_by>ai.reader</sys_updated_by>
+        <sys_updated_on>2026-11-20 10:58:51</sys_updated_on>
     </sys_script_include>
 </record_update>
