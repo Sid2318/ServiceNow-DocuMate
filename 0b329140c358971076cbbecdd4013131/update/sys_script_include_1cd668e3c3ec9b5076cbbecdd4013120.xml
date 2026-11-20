@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_2162040_documate.PreviewDoc</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>PreviewDoc</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var PreviewDoc = Class.create();
+PreviewDoc.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+    preview: function() {
+        var r = new x_2162040_documate.CoreEngine().previewDocument(
+            this.getParameter('sysparm_template'),
+            this.getParameter('sysparm_record'),
+            this.getParameter('sysparm_html'));   // unsaved editor content
+        return JSON.stringify(r);
+    },
+    type: 'PreviewDoc'
+});]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-11-20 05:44:48</sys_created_on>
+        <sys_id>1cd668e3c3ec9b5076cbbecdd4013120</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>PreviewDoc</sys_name>
+        <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
+        <sys_update_name>sys_script_include_1cd668e3c3ec9b5076cbbecdd4013120</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-11-20 05:44:48</sys_updated_on>
+    </sys_script_include>
+</record_update>

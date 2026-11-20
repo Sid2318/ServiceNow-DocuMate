@@ -4,97 +4,83 @@
             <element>default_file_name</element>
             <position>0</position>
             <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2026-11-08 12:31:58</sys_created_on>
-            <sys_id>334194b7c398131076cbbecdd401315b</sys_id>
+            <sys_created_on>2026-11-20 05:54:06</sys_created_on>
+            <sys_id>18592c2bc3ec9b5076cbbecdd4013187</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="General" display_value="General" name="x_2162040_documate_templates" sys_domain="global" view="Default view">bb995e0cc390d71076cbbecdd40131a3</sys_ui_section>
             <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2026-11-08 12:31:58</sys_updated_on>
-            <sys_user/>
-            <type/>
-        </sys_ui_element>
-        <sys_ui_element action="INSERT_OR_UPDATE">
-            <element>test_record_sys_id</element>
-            <position>1</position>
-            <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2026-11-08 12:31:58</sys_created_on>
-            <sys_id>fb4194b7c398131076cbbecdd401315b</sys_id>
-            <sys_mod_count>0</sys_mod_count>
-            <sys_ui_formatter/>
-            <sys_ui_section caption="General" display_value="General" name="x_2162040_documate_templates" sys_domain="global" view="Default view">bb995e0cc390d71076cbbecdd40131a3</sys_ui_section>
-            <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2026-11-08 12:31:58</sys_updated_on>
+            <sys_updated_on>2026-11-20 05:54:06</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
         <sys_ui_element action="INSERT_OR_UPDATE">
             <element>.split</element>
-            <position>2</position>
+            <position>1</position>
             <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2026-11-08 12:31:58</sys_created_on>
-            <sys_id>b74194b7c398131076cbbecdd401315c</sys_id>
+            <sys_created_on>2026-11-20 05:54:06</sys_created_on>
+            <sys_id>d0592c2bc3ec9b5076cbbecdd4013188</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="General" display_value="General" name="x_2162040_documate_templates" sys_domain="global" view="Default view">bb995e0cc390d71076cbbecdd40131a3</sys_ui_section>
             <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2026-11-08 12:31:58</sys_updated_on>
+            <sys_updated_on>2026-11-20 05:54:06</sys_updated_on>
             <sys_user/>
             <type>.split</type>
         </sys_ui_element>
         <sys_ui_element action="INSERT_OR_UPDATE">
             <element>dynamic_name</element>
-            <position>3</position>
+            <position>2</position>
             <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2026-11-08 12:31:58</sys_created_on>
-            <sys_id>734194b7c398131076cbbecdd401315d</sys_id>
+            <sys_created_on>2026-11-20 05:54:06</sys_created_on>
+            <sys_id>9c592c2bc3ec9b5076cbbecdd4013188</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="General" display_value="General" name="x_2162040_documate_templates" sys_domain="global" view="Default view">bb995e0cc390d71076cbbecdd40131a3</sys_ui_section>
             <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2026-11-08 12:31:58</sys_updated_on>
+            <sys_updated_on>2026-11-20 05:54:06</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
         <sys_ui_element action="INSERT_OR_UPDATE">
             <element>.end_split</element>
-            <position>4</position>
+            <position>3</position>
             <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2026-11-08 12:31:58</sys_created_on>
-            <sys_id>3f4194b7c398131076cbbecdd401315d</sys_id>
+            <sys_created_on>2026-11-20 05:54:06</sys_created_on>
+            <sys_id>58592c2bc3ec9b5076cbbecdd4013189</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="General" display_value="General" name="x_2162040_documate_templates" sys_domain="global" view="Default view">bb995e0cc390d71076cbbecdd40131a3</sys_ui_section>
             <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2026-11-08 12:31:58</sys_updated_on>
+            <sys_updated_on>2026-11-20 05:54:06</sys_updated_on>
             <sys_user/>
             <type>.end_split</type>
         </sys_ui_element>
         <sys_ui_element action="INSERT_OR_UPDATE">
             <element>script_for_naming</element>
-            <position>5</position>
+            <position>4</position>
             <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2026-11-08 12:31:58</sys_created_on>
-            <sys_id>f74194b7c398131076cbbecdd401315e</sys_id>
+            <sys_created_on>2026-11-20 05:54:06</sys_created_on>
+            <sys_id>14592c2bc3ec9b5076cbbecdd401318a</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="General" display_value="General" name="x_2162040_documate_templates" sys_domain="global" view="Default view">bb995e0cc390d71076cbbecdd40131a3</sys_ui_section>
             <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2026-11-08 12:31:58</sys_updated_on>
+            <sys_updated_on>2026-11-20 05:54:06</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
         <sys_ui_element action="INSERT_OR_UPDATE">
             <element>html_template</element>
-            <position>6</position>
+            <position>5</position>
             <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2026-11-08 12:31:58</sys_created_on>
-            <sys_id>b34194b7c398131076cbbecdd401315f</sys_id>
+            <sys_created_on>2026-11-20 05:54:06</sys_created_on>
+            <sys_id>dc592c2bc3ec9b5076cbbecdd401318a</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_ui_formatter/>
             <sys_ui_section caption="General" display_value="General" name="x_2162040_documate_templates" sys_domain="global" view="Default view">bb995e0cc390d71076cbbecdd40131a3</sys_ui_section>
             <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2026-11-08 12:31:58</sys_updated_on>
+            <sys_updated_on>2026-11-20 05:54:06</sys_updated_on>
             <sys_user/>
             <type/>
         </sys_ui_element>
