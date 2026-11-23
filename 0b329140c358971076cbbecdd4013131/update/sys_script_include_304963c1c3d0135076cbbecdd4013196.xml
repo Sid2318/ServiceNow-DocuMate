@@ -28,8 +28,58 @@ instanceUtils.prototype = {
         return inst.insert();
     },
 
-    createSuccess: function(template, record, attachmentSysId) {
-        return this.createInstance(template, record, 'success', attachmentSysId, 'SuccessFully Created', 'doc');
+    /*
+     * Copy generated document attachment from source record to DocuMate instance record.
+     */
+    copyAttachmentToInstance: function(attachmentSysId, instance) {
+        try {
+            // accept either the instance sys_id or an instance GlideRecord
+            if (typeof instance == 'string') {
+                var instGr = new GlideRecord('x_2162040_documate_instance');
+                instance = instGr.get(instance) ? instGr : null;
+            }
+
+            if (!attachmentSysId || !instance || !instance.isValidRecord()) {
+                return false;
+            }
+
+            var att = new GlideRecord('sys_attachment');
+            if (!att.get(attachmentSysId)) {
+                return false;
+            }
+
+            var sa = new GlideSysAttachment();
+            var content = sa.getContent(att);
+
+            if (content === null || content === undefined) {
+                gs.error('DocuMate: Attachment content empty. attachmentSysId=' + attachmentSysId);
+                return false;
+            }
+
+            var newAttachmentId = sa.write(
+                instance,
+                att.getValue('file_name'),
+                att.getValue('content_type'),
+                content
+            );
+
+            return !!newAttachmentId;
+
+        } catch (ex) {
+            gs.error('DocuMate: Failed to copy attachment to instance. Error: ' + ex.toString());
+            return false;
+        }
+    },
+
+    createSuccess: function(template, record, attachmentSysId, warnings) {
+        var msg = 'SuccessFully Created';
+
+        if (warnings && warnings.length) {
+            msg = 'Created with ' + warnings.length + ' warning(s) - please check the configuration:\n- ' +
+                warnings.join('\n- ');
+        }
+
+        return this.createInstance(template, record, 'success', attachmentSysId, msg, 'doc');
     },
 
     createFailure: function(template, record, msg) {
@@ -46,13 +96,13 @@ instanceUtils.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-10-31 15:20:16</sys_created_on>
         <sys_id>304963c1c3d0135076cbbecdd4013196</sys_id>
-        <sys_mod_count>2</sys_mod_count>
+        <sys_mod_count>4</sys_mod_count>
         <sys_name>instanceUtils</sys_name>
         <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
         <sys_update_name>sys_script_include_304963c1c3d0135076cbbecdd4013196</sys_update_name>
-        <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2026-11-10 06:22:29</sys_updated_on>
+        <sys_updated_by>ai.reader</sys_updated_by>
+        <sys_updated_on>2026-11-23 09:00:04</sys_updated_on>
     </sys_script_include>
 </record_update>

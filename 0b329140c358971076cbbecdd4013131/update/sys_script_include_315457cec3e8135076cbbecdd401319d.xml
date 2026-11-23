@@ -20,7 +20,7 @@ emailUtils.prototype = {
      *
      * Flow:
      * - Load DocuMate instance
-     * - Copy generated document attachment to instance
+     * - (Attachment is already copied to the instance by CoreEngine)
      * - For each Email Template:
      *      Resolve subject/body/recipients
      *      Queue event
@@ -62,20 +62,6 @@ emailUtils.prototype = {
             return result;
         }
 
-        //Always copy generated document to instance for DocuMate emails.
-        var copied = this.copyAttachmentToInstance(attachmentSysId, instance);
-        logLines.push('Attachment copied to instance: ' + (copied ? 'yes' : 'no'));
-        logLines.push('');
-
-        if (!copied) {
-            result.failed = 1;
-            result.status = 'failed';
-            logLines.push('Failed: generated document could not be attached to the DocuMate instance. No email queued.');
-            result.log = logLines.join('\n');
-            this.updateInstanceEmailInfo(instanceSysId, result.status, result.log);
-            return result;
-        }
-
         var emailTemplate = new GlideRecord('x_2162040_documate_email');
         emailTemplate.addQuery('template', template.getUniqueValue());
         emailTemplate.query();
@@ -105,6 +91,10 @@ emailUtils.prototype = {
 
                 if (one.message) {
                     logLines.push('Message: ' + one.message);
+                }
+
+                if (one.errors && one.errors.length) {
+                    logLines.push('Recipient script error: ' + one.errors.join(' | '));
                 }
 
                 if (one.error) {
@@ -164,9 +154,14 @@ emailUtils.prototype = {
         subject = this.replaceEmailFieldMappings(emailTemplate, subject, record, parentTemplate, false);
         body = this.replaceEmailFieldMappings(emailTemplate, body, record, parentTemplate, true);
 
-        var to = this.getRecipients(emailTemplate, 'to', record);
-        var cc = this.getRecipients(emailTemplate, 'cc', record);
-        var bcc = this.getRecipients(emailTemplate, 'bcc', record);
+        // Errors raised by "Evaluate ... Using Script" recipient scripts are collected here
+        // and written to the email log on the DocuMate Instance.
+        this.recipientErrors = [];
+
+        var to = this.getRecipients(emailTemplate, 'to', record, parentTemplate);
+        var cc = this.getRecipients(emailTemplate, 'cc', record, parentTemplate);
+        var bcc = this.getRecipients(emailTemplate, 'bcc', record, parentTemplate);
+        var recipientErrors = this.recipientErrors.slice();
 
         // To wins over Cc/Bcc, Cc wins over Bcc.
         cc = this.removeAddresses(cc, to);
@@ -180,7 +175,8 @@ emailUtils.prototype = {
                 subject: subject,
                 to: to,
                 cc: cc,
-                bcc: bcc
+                bcc: bcc,
+                errors: recipientErrors
             };
         }
 
@@ -205,45 +201,9 @@ emailUtils.prototype = {
             subject: subject,
             to: to,
             cc: cc,
-            bcc: bcc
+            bcc: bcc,
+            errors: recipientErrors
         };
-    },
-
-    /*
-     * Copy generated document attachment from source record to DocuMate instance record.
-     */
-    copyAttachmentToInstance: function(attachmentSysId, instance) {
-        try {
-            if (!attachmentSysId || !instance || !instance.isValidRecord()) {
-                return false;
-            }
-
-            var att = new GlideRecord('sys_attachment');
-            if (!att.get(attachmentSysId)) {
-                return false;
-            }
-
-            var sa = new GlideSysAttachment();
-            var content = sa.getContent(att);
-
-            if (content === null || content === undefined) {
-                gs.error('DocuMate: Attachment content empty. attachmentSysId=' + attachmentSysId);
-                return false;
-            }
-
-            var newAttachmentId = sa.write(
-                instance,
-                att.getValue('file_name'),
-                att.getValue('content_type'),
-                content
-            );
-
-            return !!newAttachmentId;
-
-        } catch (ex) {
-            gs.error('DocuMate: Failed to copy attachment to instance. Error: ' + ex.toString());
-            return false;
-        }
     },
 
     /*
@@ -329,10 +289,49 @@ emailUtils.prototype = {
             return this.evaluateMappingScript(mapping, currentRecord, parentRecord, contextRecord, rowNumber);
         }
 
+        return this.getFieldMappingValue(mapping, currentRecord);
+    },
+
+    /*
+     * GlideScopedEvaluator does NOT throw when a script errors: it logs the error and
+     * leaves the variables untouched. So we start "result" as null and treat a null
+     * result as a failure and point the user to the system log for the exact text.
+     */
+    scriptErrorDetail: function(sysId, since) {
+        // The platform error text lives in the System Log (global table), which a scoped app
+        // cannot read without a cross-scope privilege, so we point the user to it instead.
+        return 'script raised an error or did not set "result" - see System Log for "' + sysId + '"';
+    },
+
+
+    /*
+     * Visible mapping error text inserted into the document instead of a blank.
+     */
+    mappingError: function(mapping, reason) {
+        var msg = '[Please check the Mapping "' + (mapping.getValue('name') || '') + '"]';
+        gs.error('DocuMate ' + msg + ' Reason: ' + reason);
+        return msg;
+    },
+
+    /*
+     * Direct field lookup with validation.
+     */
+    getFieldMappingValue: function(mapping, currentRecord) {
         var fieldName = mapping.getValue('field');
 
         if (!fieldName) {
-            return '';
+            return this.mappingError(mapping, 'no field selected');
+        }
+        if (!currentRecord) {
+            return this.mappingError(mapping, 'no record available');
+        }
+
+        var valid = currentRecord.isValidField(fieldName);
+        if (!valid && fieldName.indexOf('.') > -1) {
+            valid = currentRecord.getElement(fieldName) !== null;
+        }
+        if (!valid) {
+            return this.mappingError(mapping, 'field "' + fieldName + '" not found on table ' + currentRecord.getTableName());
         }
 
         return currentRecord.getDisplayValue(fieldName);
@@ -343,20 +342,25 @@ emailUtils.prototype = {
      */
     evaluateMappingScript: function(mapping, currentRecord, parentRecord, contextRecord, rowNumber) {
         try {
+            if (!mapping.getValue('script_value')) {
+                return this.mappingError(mapping, 'script is empty');
+            }
+
             var evaluator = new GlideScopedEvaluator();
 
             evaluator.putVariable('current', currentRecord);
             evaluator.putVariable('parent', parentRecord);
             evaluator.putVariable('context', contextRecord);
             evaluator.putVariable('emailTemplateRecord', contextRecord);
-            evaluator.putVariable('result', '');
+            evaluator.putVariable('result', null);
+            var startedAt = new GlideDateTime().getValue();
 
             evaluator.evaluateScript(mapping, 'script_value');
 
             var result = evaluator.getVariable('result');
 
             if (result === null || result === undefined) {
-                return '';
+                return this.mappingError(mapping, 'script error: ' + this.scriptErrorDetail(mapping.getUniqueValue(), startedAt));
             }
 
             return result.toString();
@@ -369,14 +373,23 @@ emailUtils.prototype = {
                 ex.toString()
             );
 
-            return '';
+            return this.mappingError(mapping, 'script error: ' + ex.toString());
         }
     },
 
     /*
      * type = to / cc / bcc
+     *
+     * If "Evaluate <type> Using Script" is checked on the Email Template,
+     * the recipients come ONLY from the script (script_for_<type>) and the
+     * <type> Users / Groups / Other Recipients fields are ignored.
+     * Otherwise the static fields are used.
      */
-    getRecipients: function(emailTemplate, type, record) {
+    getRecipients: function(emailTemplate, type, record, parentTemplate) {
+        if (this.isTrue(emailTemplate.getValue('evaluate_' + type + '_using_script'))) {
+            return this.evaluateRecipientScript(emailTemplate, type, record, parentTemplate);
+        }
+
         var emails = [];
 
         emails = emails.concat(this.getUserEmails(emailTemplate.getValue(type + '_users')));
@@ -384,6 +397,107 @@ emailUtils.prototype = {
         emails = emails.concat(this.getOtherEmails(emailTemplate.getValue(type + '_other_recipients')));
 
         return this.uniqueEmails(emails);
+    },
+
+    /*
+     * Evaluate script_for_to / script_for_cc / script_for_bcc.
+     *
+     * Variables available to the script:
+     * - current       = source record
+     * - template      = DocuMate Template record
+     * - emailTemplate = this DocuMate Email Template record
+     * - result        = array or comma-separated string of recipients
+     *                   (email addresses, sys_user sys_ids, sys_user_group sys_ids)
+     */
+    evaluateRecipientScript: function(emailTemplate, type, record, parentTemplate) {
+        var fieldName = 'script_for_' + type;
+
+        try {
+            if (!emailTemplate.getValue(fieldName)) {
+                this.addRecipientError(type, 'script is empty.');
+                return [];
+            }
+
+            var evaluator = new GlideScopedEvaluator();
+
+            evaluator.putVariable('current', record);
+            evaluator.putVariable('template', parentTemplate);
+            evaluator.putVariable('emailTemplate', emailTemplate);
+            evaluator.putVariable('result', []);
+
+            evaluator.evaluateScript(emailTemplate, fieldName);
+
+            return this.normalizeRecipients(evaluator.getVariable('result'));
+
+        } catch (ex) {
+            gs.error(
+                'DocuMate recipient script (' + type + ') failed for email template ' +
+                emailTemplate.getUniqueValue() +
+                ': ' +
+                ex.toString()
+            );
+
+            this.addRecipientError(type, ex.toString());
+
+            return [];
+        }
+    },
+
+    addRecipientError: function(type, message) {
+        if (!this.recipientErrors) {
+            this.recipientErrors = [];
+        }
+
+        this.recipientErrors.push(type + ': ' + message);
+    },
+
+    /*
+     * Convert a script result into a unique list of email addresses.
+     * Accepts an array or a string (separated by comma, semicolon or new line).
+     * Each item can be an email address, a sys_user sys_id or a sys_user_group sys_id.
+     */
+    normalizeRecipients: function(value) {
+        var tokens = [];
+        this.collectRecipientTokens(value, tokens);
+
+        var emails = [];
+
+        for (var i = 0; i < tokens.length; i++) {
+            var token = tokens[i];
+
+            if (/^[0-9a-f]{32}$/i.test(token)) {
+                emails = emails.concat(this.getUserEmails(token));
+                emails = emails.concat(this.getGroupEmails(token));
+            } else if (this.isValidEmailValue(token)) {
+                emails.push(token);
+            }
+        }
+
+        return this.uniqueEmails(emails);
+    },
+
+    collectRecipientTokens: function(value, tokens) {
+        if (value === null || value === undefined) {
+            return;
+        }
+
+        if (Object.prototype.toString.call(value) === '[object Array]') {
+            for (var i = 0; i < value.length; i++) {
+                this.collectRecipientTokens(value[i], tokens);
+            }
+
+            return;
+        }
+
+        var parts = value.toString().split(/[,;\n]/);
+
+        for (var j = 0; j < parts.length; j++) {
+            var part = parts[j].trim();
+
+            if (this.isValidEmailValue(part)) {
+                tokens.push(part);
+            }
+        }
     },
 
     /*
@@ -584,13 +698,13 @@ emailUtils.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-11-16 02:38:56</sys_created_on>
         <sys_id>315457cec3e8135076cbbecdd401319d</sys_id>
-        <sys_mod_count>8</sys_mod_count>
+        <sys_mod_count>14</sys_mod_count>
         <sys_name>emailUtils</sys_name>
         <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
         <sys_update_name>sys_script_include_315457cec3e8135076cbbecdd401319d</sys_update_name>
-        <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2026-11-19 14:41:29</sys_updated_on>
+        <sys_updated_by>ai.reader</sys_updated_by>
+        <sys_updated_on>2026-11-23 09:00:07</sys_updated_on>
     </sys_script_include>
 </record_update>
