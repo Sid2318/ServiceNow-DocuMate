@@ -45,7 +45,18 @@ CoreEngine.prototype = {
             };
         }
 
-        if (!this.evaluateCondition(template, record)) {
+        var cond = this.evaluateConditionDetailed(template, record);
+
+        if (cond.error) {
+            this.instanceUtils.createFailure(template, record, cond.error);
+
+            return {
+                status: 'failed',
+                error: cond.error
+            };
+        }
+
+        if (!cond.matched) {
             this.instanceUtils.createSkipped(
                 template,
                 record,
@@ -114,6 +125,16 @@ CoreEngine.prototype = {
 
         gr.query();
 
+        var schedErr = gr.getLastErrorMessage ? gr.getLastErrorMessage() : '';
+        if (schedErr) {
+            var schedMsg = 'Please check the Template Condition (invalid query: ' + schedErr + ')';
+            gs.error('DocuMate ' + schedMsg);
+            return {
+                status: 'failed',
+                error: schedMsg
+            };
+        }
+
         var generated = 0;
         var skipped = 0;
         var failed = 0;
@@ -143,7 +164,7 @@ CoreEngine.prototype = {
      */
     generateDocument: function(template, record) {
         var cutoff = new GlideDateTime();
-        cutoff.addSeconds(-600); // 10 minutes ago (UTC)
+        cutoff.addSeconds(-120); // 2 minutes ago (UTC)
 
         // skip if a successful document already exists for this template + record
         var dup = new GlideRecord('x_2162040_documate_instance');
@@ -169,7 +190,10 @@ CoreEngine.prototype = {
             var attachmentSysId = this.createDocAttachment(record, finalHtml, fileName);
 
             // 2. Create DocuMate instance row immediately after document creation
-            var instanceSysId = this.instanceUtils.createSuccess(template, record, attachmentSysId);
+            var instanceSysId = this.instanceUtils.createSuccess(template, record, attachmentSysId, this.warnings);
+
+            // Always copy the generated document to the DocuMate instance 
+            var copied = this.instanceUtils.copyAttachmentToInstance(attachmentSysId, instanceSysId);
 
             // 3. Email step must not fail document generation
             var emailResult = {
@@ -180,7 +204,17 @@ CoreEngine.prototype = {
                 error: ''
             };
 
-            if (this.isTrue(template.getValue('send_email'))) {
+            if (this.isTrue(template.getValue('send_email')) && !copied) {
+                emailResult = {
+                    queued: 0,
+                    skipped: 0,
+                    failed: 1,
+                    status: 'failed',
+                    error: 'Generated document could not be attached to the DocuMate instance. No email queued.'
+                };
+
+                this.updateInstanceEmailFailure(instanceSysId, emailResult.error);
+            } else if (this.isTrue(template.getValue('send_email'))) {
                 try {
                     emailResult = new x_2162040_documate.emailUtils().sendEmailsForTemplate(
                         template,
@@ -237,33 +271,50 @@ CoreEngine.prototype = {
      * - If condition exists → checks current record against encoded query
      */
     evaluateCondition: function(template, record) {
+        return this.evaluateConditionDetailed(template, record).matched;
+    },
+
+    /*
+     * Returns { matched: boolean, error: string }.
+     * error is a user-readable "Please check ..." message when the condition
+     * itself is misconfigured (as opposed to simply not matching).
+     */
+    evaluateConditionDetailed: function(template, record) {
+        var tid = template.getUniqueValue();
+
         if (this.isTrue(template.getValue('evaluate_condition_using_script'))) {
+            if (!template.getValue('script_for_condition')) {
+                return this.conditionError('Please check the Template Condition Script (script is empty)');
+            }
+
             try {
-                var script = template.getValue('script_for_condition');
-
-                if (!script) {
-                    gs.error('DocuMate condition script is empty for template: ' + template.getUniqueValue());
-                    return false;
-                }
-
                 var evaluator = new GlideScopedEvaluator();
                 evaluator.putVariable('current', record);
-                evaluator.putVariable('result', false);
+                evaluator.putVariable('result', null);
+                var startedAt = new GlideDateTime().getValue();
                 evaluator.evaluateScript(template, 'script_for_condition');
                 var result = evaluator.getVariable('result');
-                return result == true;
 
+                if (result === null || result === undefined || result === '') {
+                    return this.conditionError('Please check the Template Condition Script (script error: ' + this.scriptErrorDetail(tid, startedAt) + ')');
+                }
+
+                return {
+                    matched: result == true || result == 'true',
+                    error: ''
+                };
             } catch (ex) {
-                gs.error('DocuMate condition script failed for template ' +
-                    template.getUniqueValue() + ': ' + ex.toString());
-
-                return false;
+                return this.conditionError('Please check the Template Condition Script (script error: ' + ex.toString() + ')');
             }
         }
+
         var condition = template.getValue('condition');
 
         if (!condition) {
-            return true;
+            return {
+                matched: true,
+                error: ''
+            };
         }
 
         var gr = new GlideRecord(record.getTableName());
@@ -271,7 +322,23 @@ CoreEngine.prototype = {
         gr.addEncodedQuery(condition);
         gr.query();
 
-        return gr.hasNext();
+        var qErr = gr.getLastErrorMessage ? gr.getLastErrorMessage() : '';
+        if (qErr) {
+            return this.conditionError('Please check the Template Condition (invalid query: ' + qErr + ')');
+        }
+
+        return {
+            matched: gr.hasNext(),
+            error: ''
+        };
+    },
+
+    conditionError: function(msg) {
+        gs.error('DocuMate ' + msg);
+        return {
+            matched: false,
+            error: msg
+        };
     },
 
     /*
@@ -290,18 +357,24 @@ CoreEngine.prototype = {
 
                 evaluator.putVariable('current', record);
                 evaluator.putVariable('template', template);
-                evaluator.putVariable('result', fileName);
+                evaluator.putVariable('result', null);
+                var startedAt = new GlideDateTime().getValue();
 
                 evaluator.evaluateScript(template, 'script_for_naming');
 
                 var result = evaluator.getVariable('result');
 
-                if (result !== null && result !== undefined && result.toString() !== '') {
-                    fileName = result.toString();
+                if (result === null || result === undefined || result.toString() === '') {
+                    throw 'Please check the Naming Script (script error: ' + this.scriptErrorDetail(template.getUniqueValue(), startedAt) + ')';
                 }
 
+                fileName = result.toString();
+
             } catch (ex) {
-                gs.error('DocuMate naming script failed: ' + ex.toString());
+                if (ex.toString().indexOf('Please check the Naming Script') === 0) {
+                    throw ex;
+                }
+                throw 'Please check the Naming Script (script error: ' + ex.toString() + ')';
             }
         }
 
@@ -399,7 +472,18 @@ CoreEngine.prototype = {
      * Render a single sub template.
      */
     renderSubTemplate: function(subTemplate, parentRecord) {
-        var records = this.getSubTemplateRecords(subTemplate, parentRecord);
+        var records;
+
+        try {
+            records = this.getSubTemplateRecords(subTemplate, parentRecord);
+        } catch (ex) {
+            var msg = 'Please check the Sub Template "' +
+                (subTemplate.getValue('template_reference_field') || subTemplate.getUniqueValue()) +
+                '" (' + ex.toString() + ')';
+            gs.error('DocuMate ' + msg);
+            this.addWarning('[' + msg + ']');
+            return '<p><b>[' + this.escapeHTML(msg) + ']</b></p>';
+        }
 
         if (!records || records.length === 0) {
             return subTemplate.getValue('empty_message') || '';
@@ -419,7 +503,7 @@ CoreEngine.prototype = {
         var tableName = subTemplate.getValue('table');
 
         if (!tableName) {
-            return records;
+            throw 'no table selected';
         }
 
         if (this.isTrue(subTemplate.getValue('evaluate_records_using_script'))) {
@@ -435,6 +519,11 @@ CoreEngine.prototype = {
         }
         gr.query();
 
+        var qErr = gr.getLastErrorMessage ? gr.getLastErrorMessage() : '';
+        if (qErr) {
+            throw 'invalid condition: ' + qErr;
+        }
+
         while (gr.next()) {
             records.push(gr.getUniqueValue());
         }
@@ -446,16 +535,25 @@ CoreEngine.prototype = {
      * Runs sub template record selection script.
      */
     evaluateRecordSelectionScript: function(subTemplate, parentRecord) {
+        if (!subTemplate.getValue('record_selection_script')) {
+            throw 'record selection script is empty';
+        }
+
         try {
             var evaluator = new GlideScopedEvaluator();
 
             evaluator.putVariable('parent', parentRecord);
             evaluator.putVariable('sub_template', subTemplate);
-            evaluator.putVariable('result', []);
+            evaluator.putVariable('result', null);
+            var startedAt = new GlideDateTime().getValue();
 
             evaluator.evaluateScript(subTemplate, 'record_selection_script');
 
             var result = evaluator.getVariable('result');
+
+            if (result === null || result === undefined) {
+                throw this.scriptErrorDetail(subTemplate.getUniqueValue(), startedAt);
+            }
 
             if (!result) {
                 return [];
@@ -465,13 +563,14 @@ CoreEngine.prototype = {
                 return result.split(',');
             }
 
+            if (Object.prototype.toString.call(result) !== '[object Array]') {
+                throw 'record selection script must set "result" to an array of sys_ids';
+            }
+
             return result;
 
         } catch (ex) {
-            gs.error('DocuMate record selection script failed for Sub Template ' +
-                subTemplate.getUniqueValue() + ': ' + ex.toString());
-
-            return [];
+            throw 'record selection script error: ' + ex.toString();
         }
     },
 
@@ -571,12 +670,7 @@ CoreEngine.prototype = {
             return this.evaluateMappingScript(mapping, currentRecord, parentRecord, contextRecord, rowNumber);
         }
 
-        var fieldName = mapping.getValue('field');
-        if (!fieldName) {
-            return '';
-        }
-
-        return currentRecord.getDisplayValue(fieldName);
+        return this.getFieldMappingValue(mapping, currentRecord);
     },
 
     updateInstanceEmailFailure: function(instanceSysId, errorMessage) {
@@ -604,6 +698,7 @@ CoreEngine.prototype = {
     buildHtml: function(template, record, htmlOverride) {
         var html = htmlOverride || template.getValue('html_template') || '';
         if (!html) throw 'HTML Template is empty.';
+        this.warnings = [];
         html = this.decodeHTML(html);
         html = this.replaceMainFieldMappings(template, html, record);
         html = this.renderSubTemplates(template, html, record);
@@ -629,7 +724,8 @@ CoreEngine.prototype = {
         try {
             return {
                 success: true,
-                html: this.buildHtml(template, record, htmlOverride)
+                html: this.buildHtml(template, record, htmlOverride),
+                warnings: this.warnings || []
             };
         } catch (e) {
             return {
@@ -637,6 +733,57 @@ CoreEngine.prototype = {
                 message: 'Preview failed: ' + e
             }; // surfaces ${bad_field} typos
         }
+    },
+
+    /*
+     * GlideScopedEvaluator does NOT throw when a script errors: it logs the error and
+     * leaves the variables untouched. So we start "result" as null and treat a null
+     * result as a failure and point the user to the system log for the exact text.
+     */
+    scriptErrorDetail: function(sysId, since) {
+        // The platform error text lives in the System Log (global table), which a scoped app
+        // cannot read without a cross-scope privilege, so we point the user to it instead.
+        return 'script raised an error or did not set "result" - see System Log for "' + sysId + '"';
+    },
+
+
+    /*
+     * Visible mapping error text inserted into the document instead of a blank.
+     */
+    mappingError: function(mapping, reason) {
+        var msg = '[Please check the Mapping "' + (mapping.getValue('name') || '') + '"]';
+        gs.error('DocuMate ' + msg + ' Reason: ' + reason);
+        this.addWarning(msg);
+        return msg;
+    },
+
+    addWarning: function(msg) {
+        this.warnings = this.warnings || [];
+        this.warnings.push(msg);
+    },
+
+    /*
+     * Direct field lookup with validation.
+     */
+    getFieldMappingValue: function(mapping, currentRecord) {
+        var fieldName = mapping.getValue('field');
+
+        if (!fieldName) {
+            return this.mappingError(mapping, 'no field selected');
+        }
+        if (!currentRecord) {
+            return this.mappingError(mapping, 'no record available');
+        }
+
+        var valid = currentRecord.isValidField(fieldName);
+        if (!valid && fieldName.indexOf('.') > -1) {
+            valid = currentRecord.getElement(fieldName) !== null;
+        }
+        if (!valid) {
+            return this.mappingError(mapping, 'field "' + fieldName + '" not found on table ' + currentRecord.getTableName());
+        }
+
+        return currentRecord.getDisplayValue(fieldName);
     },
 
     /*
@@ -652,19 +799,24 @@ CoreEngine.prototype = {
      */
     evaluateMappingScript: function(mapping, currentRecord, parentRecord, contextRecord, rowNumber) {
         try {
+            if (!mapping.getValue('script_value')) {
+                return this.mappingError(mapping, 'script is empty');
+            }
+
             var evaluator = new GlideScopedEvaluator();
 
             evaluator.putVariable('current', currentRecord);
             evaluator.putVariable('parent', parentRecord);
             evaluator.putVariable('context', contextRecord);
-            evaluator.putVariable('result', '');
+            evaluator.putVariable('result', null);
+            var startedAt = new GlideDateTime().getValue();
 
             evaluator.evaluateScript(mapping, 'script_value');
 
             var result = evaluator.getVariable('result');
 
             if (result === null || result === undefined) {
-                return '';
+                return this.mappingError(mapping, 'script error: ' + this.scriptErrorDetail(mapping.getUniqueValue(), startedAt));
             }
 
             return result.toString();
@@ -673,7 +825,7 @@ CoreEngine.prototype = {
             gs.error('DocuMate field mapping script failed for mapping ' +
                 mapping.getUniqueValue() + ': ' + ex.toString());
 
-            return '';
+            return this.mappingError(mapping, 'script error: ' + ex.toString());
         }
     },
 
@@ -827,13 +979,13 @@ CoreEngine.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-10-31 15:40:34</sys_created_on>
         <sys_id>1e9f2b01c314135076cbbecdd4013131</sys_id>
-        <sys_mod_count>22</sys_mod_count>
+        <sys_mod_count>29</sys_mod_count>
         <sys_name>CoreEngine</sys_name>
         <sys_package display_value="DocuMate" source="x_2162040_documate">0b329140c358971076cbbecdd4013131</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="DocuMate">0b329140c358971076cbbecdd4013131</sys_scope>
         <sys_update_name>sys_script_include_1e9f2b01c314135076cbbecdd4013131</sys_update_name>
-        <sys_updated_by>ai.reader</sys_updated_by>
-        <sys_updated_on>2026-11-20 10:58:51</sys_updated_on>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-11-23 09:01:35</sys_updated_on>
     </sys_script_include>
 </record_update>
